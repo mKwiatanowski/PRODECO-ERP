@@ -4,10 +4,10 @@ import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './pages/Dashboard';
 import { Inventory } from './pages/Inventory';
-import { Finance } from './pages/Finance';
 import { Projects } from './pages/Projects';
 import { Clients } from './pages/Clients';
 import { Dictionaries } from './pages/Dictionaries';
+import { FinanceDashboard } from '../modules/finance/FinanceDashboard';
 
 import { Header } from './components/Header';
 import { Toaster } from 'react-hot-toast';
@@ -33,7 +33,7 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Dashboard />} />
                             <Route path="/inventory" element={<Inventory />} />
-                            <Route path="/finance" element={<Finance />} />
+                            <Route path="/finance" element={<FinanceDashboard />} />
                             <Route path="/projects" element={<Projects />} />
                             <Route path="/clients" element={<Clients />} />
                             <Route path="/dictionaries" element={<Dictionaries />} />

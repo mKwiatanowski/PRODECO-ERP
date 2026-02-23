@@ -12,10 +12,10 @@ export class InventoryBatch extends BaseEntity {
     @Column("decimal", { precision: 10, scale: 2 })
     purchasePrice: number
 
-    @Column("int")
+    @Column("decimal", { precision: 10, scale: 2 })
     originalQuantity: number
 
-    @Column("int")
+    @Column("decimal", { precision: 10, scale: 2 })
     remainingQuantity: number
 
     @Column({ type: 'date', nullable: true })

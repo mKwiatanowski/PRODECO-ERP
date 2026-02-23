@@ -1,32 +1,81 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-contextBridge.exposeInMainWorld('electron', {
+const electronAPI = {
     // Inventory
+    inventory: {
+        getAll: () => ipcRenderer.invoke('inventory:getAll'),
+        getDocuments: () => ipcRenderer.invoke('inventory:getDocuments'),
+        addStock: (data: { productId: string; batchNumber: string; quantity: number; price: number; categoryId: string }) =>
+            ipcRenderer.invoke('inventory:addStock', data),
+        getValue: () => ipcRenderer.invoke('inventory:getValue'),
+        getProducts: () => ipcRenderer.invoke('inventory:getProducts'),
+        getProductHistory: (productId: string) => ipcRenderer.invoke('inventory:getProductHistory', productId),
+        getInventoryDocumentDetails: (documentId: string) => ipcRenderer.invoke('inventory:getInventoryDocumentDetails', documentId),
+    },
+
+    // Finance
+    finance: {
+        createInvoice: (data: any) => ipcRenderer.invoke('finance:createInvoice', data),
+        getInvoices: () => ipcRenderer.invoke('finance:getInvoices'),
+        addInvoice: (invoice: any, items: any[]) => ipcRenderer.invoke('finance:addInvoice', invoice, items),
+        updateInvoice: (id: string, invoice: any, items: any[]) => ipcRenderer.invoke('finance:updateInvoice', id, invoice, items),
+        getFinancialSummary: () => ipcRenderer.invoke('finance:getFinancialSummary'),
+        printInvoice: (invoiceId: string) => ipcRenderer.invoke('finance:printInvoice', invoiceId),
+        sendToKsef: (invoiceId: string) => ipcRenderer.invoke('finance:sendToKsef', invoiceId),
+    },
+
+
+    // Projects
+    projects: {
+        createProject: (data: { name: string; description?: string; clientId: string }) =>
+            ipcRenderer.invoke('projects:createProject', data),
+        update: (data: { id: string; name: string; description?: string; status: string; clientId: string }) =>
+            ipcRenderer.invoke('projects:update', data),
+        getAll: () => ipcRenderer.invoke('projects:getAll'),
+    },
+
+    // Clients
+    clients: {
+        create: (data: any) => ipcRenderer.invoke('clients:create', data),
+        update: (data: any) => ipcRenderer.invoke('clients:update', data),
+        getAll: () => ipcRenderer.invoke('clients:getAll'),
+    },
+
+    // System / Dictionaries
+    dictionaries: {
+        getAll: () => ipcRenderer.invoke('dictionaries:getAll'),
+        add: (data: { category: string; value: string; code?: string }) =>
+            ipcRenderer.invoke('dictionaries:add', data),
+        update: (data: { id: string; value: string; code?: string }) =>
+            ipcRenderer.invoke('dictionaries:update', data),
+        delete: (id: string) => ipcRenderer.invoke('dictionaries:delete', id),
+    },
+
+    // Legacy / Flat support (matching previous structure)
     getInventory: () => ipcRenderer.invoke('inventory:getAll'),
     getInventoryDocuments: () => ipcRenderer.invoke('inventory:getDocuments'),
     addStock: (data: any) => ipcRenderer.invoke('inventory:addStock', data),
     getInventoryValue: () => ipcRenderer.invoke('inventory:getValue'),
-
-    // Finance
     createInvoice: (data: any) => ipcRenderer.invoke('finance:createInvoice', data),
     getInvoices: () => ipcRenderer.invoke('finance:getInvoices'),
-
-    // Projects
+    addInvoice: (invoice: any, items: any[]) => ipcRenderer.invoke('finance:addInvoice', invoice, items),
+    updateInvoice: (id: string, invoice: any, items: any[]) => ipcRenderer.invoke('finance:updateInvoice', id, invoice, items),
+    getFinancialSummary: () => ipcRenderer.invoke('finance:getFinancialSummary'),
     createProject: (data: any) => ipcRenderer.invoke('projects:createProject', data),
     getProjects: () => ipcRenderer.invoke('projects:getAll'),
-
-    // Clients
     createClient: (data: any) => ipcRenderer.invoke('clients:create', data),
     getClients: () => ipcRenderer.invoke('clients:getAll'),
-
-    // System / Dictionaries
     getDictionaries: () => ipcRenderer.invoke('dictionaries:getAll'),
     addDictionary: (data: any) => ipcRenderer.invoke('dictionaries:add', data),
     updateDictionary: (data: any) => ipcRenderer.invoke('dictionaries:update', data),
     deleteDictionary: (id: string) => ipcRenderer.invoke('dictionaries:delete', id),
+    getProductHistory: (productId: string) => ipcRenderer.invoke('inventory:getProductHistory', productId),
 
     // Window Controls
     minimize: () => ipcRenderer.send('window:minimize'),
     maximize: () => ipcRenderer.send('window:maximize'),
     close: () => ipcRenderer.send('window:close'),
-})
+}
+
+contextBridge.exposeInMainWorld('electron', electronAPI)
+

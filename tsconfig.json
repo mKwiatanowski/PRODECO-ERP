@@ -24,6 +24,7 @@
         /* TypeORM */
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
+        "esModuleInterop": true,
         "strictPropertyInitialization": false,
         /* Paths & Base */
         "baseUrl": ".",

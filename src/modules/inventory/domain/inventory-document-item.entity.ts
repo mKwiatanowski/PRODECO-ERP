@@ -1,6 +1,7 @@
 import { Entity, Column, ManyToOne, JoinColumn } from "typeorm"
 import { BaseEntity } from "../../../core/base.entity"
 import { InventoryDocument } from "./inventory-document.entity"
+import { Product } from "../../../database/entities/product.entity"
 
 @Entity("inventory_document_items")
 export class InventoryDocumentItem extends BaseEntity {
@@ -14,9 +15,16 @@ export class InventoryDocumentItem extends BaseEntity {
     @Column({ type: 'varchar' })
     productId: string
 
+    @ManyToOne(() => Product)
+    @JoinColumn({ name: 'productId' })
+    product: Product
+
     @Column("decimal", { precision: 10, scale: 2 })
     quantity: number
 
     @Column("decimal", { precision: 10, scale: 2, nullable: true })
     price?: number // Optional for RW, required for PZ
+
+    @Column({ type: 'varchar', nullable: true })
+    unit?: string
 }

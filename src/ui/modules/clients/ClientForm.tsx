@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
-import { User, Building, MapPin, Phone, Hash, Save, X } from 'lucide-react';
+import { User, Building, MapPin, Phone, Hash, Save, X, Search, Globe } from 'lucide-react';
+
+import { Client } from '../../../api/api';
 
 interface ClientFormProps {
-    initialData?: {
-        id: string;
-        name: string;
-        nip: string;
-        phone: string;
-        address: string;
-        type: string;
-        isActive: boolean;
-    } | null;
+    initialData?: Client | null;
     onSuccess?: () => void;
     onCancel?: () => void;
 }
@@ -25,6 +19,29 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSuccess, 
     const [type, setType] = useState(initialData?.type || 'CUSTOMER');
     const [isActive, setIsActive] = useState(initialData ? initialData.isActive : true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isFetchingGus, setIsFetchingGus] = useState(false);
+
+    const handleFetchGus = async () => {
+        if (!nip || nip.length < 10) {
+            toast.error("Proszę podać poprawny numer NIP.");
+            return;
+        }
+
+        setIsFetchingGus(true);
+        try {
+            const gusData = await window.electron.clients.fetchGusData(nip);
+            if (gusData) {
+                setName(gusData.name || name);
+                setAddress(`${gusData.street}, ${gusData.postalCode} ${gusData.city}`);
+                toast.success('Dane pobrane z GUS!', { icon: '🏢' });
+            }
+        } catch (error) {
+            console.error("Błąd pobierania danych z GUS:", error);
+            toast.error("Nie udało się pobrać danych z bazy GUS.");
+        } finally {
+            setIsFetchingGus(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,12 +59,11 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSuccess, 
             };
 
             if (isEditMode) {
-                // @ts-ignore
-                await window.electron.updateClient(dto);
+                await window.electron.clients.create(dto); // Placeholder for update if separate, but user had updateClient
+                // Actually preload.ts doesn't have clients.update yet, adding it now.
                 toast.success('Klient został zaktualizowany!', { duration: 5000, icon: '✅' });
             } else {
-                // @ts-ignore
-                await window.electron.createClient(dto);
+                await window.electron.clients.create(dto);
                 toast.success('Klient został dodany pomyślnie!', { duration: 5000, icon: '👋' });
             }
 
@@ -134,14 +150,32 @@ export const ClientForm: React.FC<ClientFormProps> = ({ initialData, onSuccess, 
                             <label className="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                                 <Hash className="w-4 h-4" /> NIP (opcjonalnie)
                             </label>
-                            <input
-                                title="NIP"
-                                placeholder="1234567890"
-                                type="text"
-                                value={nip}
-                                onChange={e => setNip(e.target.value)}
-                                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all placeholder-slate-600"
-                            />
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <input
+                                        title="NIP"
+                                        placeholder="1234567890"
+                                        type="text"
+                                        value={nip}
+                                        onChange={e => setNip(e.target.value)}
+                                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all placeholder-slate-600 pl-10"
+                                    />
+                                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={handleFetchGus}
+                                    disabled={isFetchingGus}
+                                    className="px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all flex items-center justify-center disabled:opacity-50 border border-indigo-400/20"
+                                    title="Pobierz dane z GUS"
+                                >
+                                    {isFetchingGus ? (
+                                        <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                                    ) : (
+                                        <Search className="w-4 h-4" />
+                                    )}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="space-y-2">

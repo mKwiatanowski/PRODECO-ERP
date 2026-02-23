@@ -3,16 +3,7 @@ import { ClientForm } from '../modules/clients/ClientForm';
 import { ResizableTh } from '../components/ResizableTh';
 import { Plus, X, Building, User, MapPin, Phone, Hash, Search } from 'lucide-react';
 
-interface Client {
-    id: string;
-    name: string;
-    nip: string;
-    phone: string;
-    address: string;
-    type: string;
-    isActive: boolean;
-    createdAt: string;
-}
+import { Client } from '../../api/api';
 
 export const Clients: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,8 +15,7 @@ export const Clients: React.FC = () => {
 
     const fetchClients = async () => {
         try {
-            // @ts-ignore
-            const data = await window.electron.getClients();
+            const data = await window.electron.clients.getAll();
             setClients(data);
         } catch (error) {
             console.error("Failed to fetch clients", error);

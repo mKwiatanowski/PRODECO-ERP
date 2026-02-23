@@ -2,15 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { ProjectForm } from '../modules/projects/ProjectForm';
 import { ResizableTh } from '../components/ResizableTh';
 import { Plus, X, Search } from 'lucide-react';
-
-interface Project {
-    id: string;
-    name: string;
-    clientName: string;
-    status: string;
-    totalMaterialCost: number;
-    createdAt: string;
-}
+import { Project } from '../../api/api';
 
 export const Projects: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,8 +12,7 @@ export const Projects: React.FC = () => {
 
     const fetchProjects = async () => {
         try {
-            // @ts-ignore
-            const data = await window.electron.getProjects();
+            const data = await window.electron.projects.getAll();
             setProjects(data);
         } catch (error) {
             console.error("Failed to fetch projects", error);

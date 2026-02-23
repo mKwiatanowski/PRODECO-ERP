@@ -24,6 +24,9 @@ export class InventoryDocument extends BaseEntity {
     @Column({ type: 'varchar', nullable: true })
     referenceId?: string // e.g., Invoice ID or Project ID
 
+    @Column({ type: 'varchar', nullable: true })
+    contractor?: string
+
     @OneToMany(() => InventoryDocumentItem, item => item.document, { cascade: true })
     items: InventoryDocumentItem[]
 }

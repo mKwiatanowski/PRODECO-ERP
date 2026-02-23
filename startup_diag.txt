@@ -1,0 +1,56 @@
+
+> green-manager-erp@0.1.0 electron:dev
+> vite
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+[36mvite v5.4.21 [32mbuilding for development...[36m[39m
+[36m
+watching for file changes...[39m
+[36mvite v5.4.21 [32mbuilding for development...[36m[39m
+[36m
+watching for file changes...[39m
+[36m
+build started...[39m
+[36m
+build started...[39m
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m516[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+transforming...
+transforming...
+[32m✓[39m 1 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist-electron/[22m[36mpreload.js  [39m[1m[2m3.52 kB[22m[1m[22m[2m │ gzip: 0.65 kB[22m
+[36mbuilt in 549ms.[39m
+[32m✓[39m 28 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist-electron/[22m[36mentry.js  [39m[1m[2m82.16 kB[22m[1m[22m[2m │ gzip: 14.95 kB[22m
+[36mbuilt in 787ms.[39m
+
+[90m[4mquery:[24m[39m [94mBEGIN[0m [37mTRANSACTION[0m
+[90m[4mquery:[24m[39m [94mSELECT[0m [37m*[0m [94mFROM[0m [37m"sqlite_master"[0m [94mWHERE[0m [37m"type"[0m [37m=[0m [37m'table'[0m [94mAND[0m [37m"name"[0m [94mIN[0m [37m([0m[37m'purchase_invoice_items'[0m[37m,[0m[37m'purchase_invoices'[0m[37m,[0m[37m'project'[0m[37m,[0m[37m'inventory_batches'[0m[37m,[0m[37m'inventory_document_items'[0m[37m,[0m[37m'inventory_documents'[0m[37m,[0m[37m'invoice_items'[0m[37m,[0m[37m'invoices'[0m[37m,[0m[37m'clients'[0m[37m,[0m[37m'dictionary'[0m[37m,[0m[37m'expenses'[0m[37m,[0m[37m'products'[0m[37m,[0m[37m'inventory_transactions'[0m[37m)[0m
+[90m[4mquery:[24m[39m [94mSELECT[0m [37m*[0m [94mFROM[0m [37m"sqlite_master"[0m [94mWHERE[0m [37m"type"[0m [37m=[0m [37m'index'[0m [94mAND[0m [37m"tbl_name"[0m [94mIN[0m [37m([0m[37m'purchase_invoice_items'[0m[37m,[0m[37m'purchase_invoices'[0m[37m,[0m[37m'project'[0m[37m,[0m[37m'inventory_batches'[0m[37m,[0m[37m'inventory_document_items'[0m[37m,[0m[37m'inventory_documents'[0m[37m,[0m[37m'invoice_items'[0m[37m,[0m[37m'invoices'[0m[37m,[0m[37m'clients'[0m[37m,[0m[37m'dictionary'[0m[37m,[0m[37m'expenses'[0m[37m,[0m[37m'products'[0m[37m,[0m[37m'inventory_transactions'[0m[37m)[0m
+[90m[4mquery:[24m[39m [94mPRAGMA[0m [95mindex_info[0m[37m([0m[37m"sqlite_autoindex_inventory_documents_2"[0m[37m)[0m
+[90m[4mquery:[24m[39m [94mPRAGMA[0m [95mindex_info[0m[37m([0m[37m"sqlite_autoindex_clients_2"[0m[37m)[0m
+[90m[4mquery:[24m[39m [94mSELECT[0m [37m*[0m [94mFROM[0m [37m"sqlite_master"[0m [94mWHERE[0m [37m"type"[0m [37m=[0m [37m'table'[0m [94mAND[0m [37m"name"[0m [37m=[0m [37m'typeorm_metadata'[0m
+[90m[4mquery:[24m[39m [94mCREATE TABLE[0m [37m"temporary_invoice_items"[0m [37m([0m[37m"id"[0m [94mvarchar[0m [94mPRIMARY KEY[0m [94mNOT NULL[0m[37m,[0m [37m"createdAt"[0m [94mdatetime[0m [94mNOT NULL[0m [94mDEFAULT[0m [37m([0m[94mdatetime[0m[37m([0m[37m'now'[0m[37m)[0m[37m)[0m[37m,[0m [37m"updatedAt"[0m [94mdatetime[0m [94mNOT NULL[0m [94mDEFAULT[0m [37m([0m[94mdatetime[0m[37m([0m[37m'now'[0m[37m)[0m[37m)[0m[37m,[0m [37m"invoiceId"[0m [94mvarchar[0m [94mNOT NULL[0m[37m,[0m [37m"productId"[0m [94mvarchar[0m [94mNOT NULL[0m[37m,[0m [37m"quantity"[0m [94mdecimal[0m[37m([0m[32m10[0m[37m,[0m[32m2[0m[37m)[0m [94mNOT NULL[0m[37m,[0m [37m"priceNetCents"[0m [94minteger[0m [94mNOT NULL[0m[37m,[0m [37m"vatRate"[0m [94mvarchar[0m [94mNOT NULL[0m[37m,[0m [37m"vatValueCents"[0m [94minteger[0m [94mNOT NULL[0m[37m,[0m [37m"priceGrossCents"[0m [94minteger[0m [94mNOT NULL[0m[37m,[0m [37m"productName"[0m [94mvarchar[0m[37m,[0m [94mCONSTRAINT[0m [37m"FK_7fb6895fc8fad9f5200e91abb59"[0m [94mFOREIGN KEY[0m [37m([0m[37m"invoiceId"[0m[37m)[0m [94mREFERENCES[0m [37m"invoices"[0m [37m([0m[37m"id"[0m[37m)[0m [94mON[0m [94mDELETE[0m [94mCASCADE[0m [94mON[0m [94mUPDATE[0m [37mNO[0m [37mACTION[0m[37m)[0m
+[90m[4mquery:[24m[39m [94mINSERT INTO[0m [37m"temporary_invoice_items"[0m[37m([0m[37m"id"[0m[37m,[0m [37m"createdAt"[0m[37m,[0m [37m"updatedAt"[0m[37m,[0m [37m"invoiceId"[0m[37m,[0m [37m"productId"[0m[37m,[0m [37m"quantity"[0m[37m,[0m [37m"priceNetCents"[0m[37m,[0m [37m"vatRate"[0m[37m,[0m [37m"vatValueCents"[0m[37m,[0m [37m"priceGrossCents"[0m[37m)[0m [94mSELECT[0m [37m"id"[0m[37m,[0m [37m"createdAt"[0m[37m,[0m [37m"updatedAt"[0m[37m,[0m [37m"invoiceId"[0m[37m,[0m [37m"productId"[0m[37m,[0m [37m"quantity"[0m[37m,[0m [37m"priceNetCents"[0m[37m,[0m [37m"vatRate"[0m[37m,[0m [37m"vatValueCents"[0m[37m,[0m [37m"priceGrossCents"[0m [94mFROM[0m [37m"invoice_items"[0m
+[90m[4mquery:[24m[39m [94mDROP TABLE[0m [37m"invoice_items"[0m
+[90m[4mquery:[24m[39m [94mALTER TABLE[0m [37m"temporary_invoice_items"[0m [37mRENAME[0m [94mTO[0m [37m"invoice_items"[0m
+[90m[4mquery:[24m[39m [94mCREATE TABLE[0m [37m"temporary_invoice_items"[0m [37m([0m[37m"id"[0m [94mvarchar[0m [94mPRIMARY KEY[0m [94mNOT NULL[0m[37m,[0m [37m"createdAt"[0m [94mdatetime[0m [94mNOT NULL[0m [94mDEFAULT[0m [37m([0m[94mdatetime[0m[37m([0m[37m'now'[0m[37m)[0m[37m)[0m[37m,[0m [37m"updatedAt"[0m [94mdatetime[0m [94mNOT NULL[0m [94mDEFAULT[0m [37m([0m[94mdatetime[0m[37m([0m[37m'now'[0m[37m)[0m[37m)[0m[37m,[0m [37m"invoiceId"[0m [94mvarchar[0m [94mNOT NULL[0m[37m,[0m [37m"productId"[0m [94mvarchar[0m[37m,[0m [37m"quantity"[0m [94mdecimal[0m[37m([0m[32m10[0m[37m,[0m[32m2[0m[37m)[0m [94mNOT NULL[0m[37m,[0m [37m"priceNetCents"[0m [94minteger[0m [94mNOT NULL[0m[37m,[0m [37m"vatRate"[0m [94mvarchar[0m [94mNOT NULL[0m[37m,[0m [37m"vatValueCents"[0m [94minteger[0m [94mNOT NULL[0m[37m,[0m [37m"priceGrossCents"[0m [94minteger[0m [94mNOT NULL[0m[37m,[0m [37m"productName"[0m [94mvarchar[0m[37m,[0m [94mCONSTRAINT[0m [37m"FK_7fb6895fc8fad9f5200e91abb59"[0m [94mFOREIGN KEY[0m [37m([0m[37m"invoiceId"[0m[37m)[0m [94mREFERENCES[0m [37m"invoices"[0m [37m([0m[37m"id"[0m[37m)[0m [94mON[0m [94mDELETE[0m [94mCASCADE[0m [94mON[0m [94mUPDATE[0m [37mNO[0m [37mACTION[0m[37m)[0m
+[90m[4mquery:[24m[39m [94mINSERT INTO[0m [37m"temporary_invoice_items"[0m[37m([0m[37m"id"[0m[37m,[0m [37m"createdAt"[0m[37m,[0m [37m"updatedAt"[0m[37m,[0m [37m"invoiceId"[0m[37m,[0m [37m"productId"[0m[37m,[0m [37m"quantity"[0m[37m,[0m [37m"priceNetCents"[0m[37m,[0m [37m"vatRate"[0m[37m,[0m [37m"vatValueCents"[0m[37m,[0m [37m"priceGrossCents"[0m[37m,[0m [37m"productName"[0m[37m)[0m [94mSELECT[0m [37m"id"[0m[37m,[0m [37m"createdAt"[0m[37m,[0m [37m"updatedAt"[0m[37m,[0m [37m"invoiceId"[0m[37m,[0m [37m"productId"[0m[37m,[0m [37m"quantity"[0m[37m,[0m [37m"priceNetCents"[0m[37m,[0m [37m"vatRate"[0m[37m,[0m [37m"vatValueCents"[0m[37m,[0m [37m"priceGrossCents"[0m[37m,[0m [37m"productName"[0m [94mFROM[0m [37m"invoice_items"[0m
+[90m[4mquery:[24m[39m [94mDROP TABLE[0m [37m"invoice_items"[0m
+[90m[4mquery:[24m[39m [94mALTER TABLE[0m [37m"temporary_invoice_items"[0m [37mRENAME[0m [94mTO[0m [37m"invoice_items"[0m
+[90m[4mquery:[24m[39m [94mCOMMIT[0m
+Database initialized
+[90m[4mquery:[24m[39m [94mSELECT[0m [95mCOUNT[0m[37m([0m[32m1[0m[37m)[0m [94mAS[0m [37m"cnt"[0m [94mFROM[0m [37m"dictionary"[0m [37m"Dictionary"[0m
+Dictionaries already seeded.
+[90m[4mquery:[24m[39m [94mSELECT[0m [37m"InventoryBatch"[0m[37m.[0m[37m"id"[0m [94mAS[0m [37m"InventoryBatch_id"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"createdAt"[0m [94mAS[0m [37m"InventoryBatch_createdAt"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"updatedAt"[0m [94mAS[0m [37m"InventoryBatch_updatedAt"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"productId"[0m [94mAS[0m [37m"InventoryBatch_productId"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"batchNumber"[0m [94mAS[0m [37m"InventoryBatch_batchNumber"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"purchasePrice"[0m [94mAS[0m [37m"InventoryBatch_purchasePrice"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"originalQuantity"[0m [94mAS[0m [37m"InventoryBatch_originalQuantity"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"remainingQuantity"[0m [94mAS[0m [37m"InventoryBatch_remainingQuantity"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"expirationDate"[0m [94mAS[0m [37m"InventoryBatch_expirationDate"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"categoryId"[0m [94mAS[0m [37m"InventoryBatch_categoryId"[0m [94mFROM[0m [37m"inventory_batches"[0m [37m"InventoryBatch"[0m
+[90m[4mquery:[24m[39m [94mSELECT[0m [37m"InventoryBatch"[0m[37m.[0m[37m"id"[0m [94mAS[0m [37m"InventoryBatch_id"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"createdAt"[0m [94mAS[0m [37m"InventoryBatch_createdAt"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"updatedAt"[0m [94mAS[0m [37m"InventoryBatch_updatedAt"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"productId"[0m [94mAS[0m [37m"InventoryBatch_productId"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"batchNumber"[0m [94mAS[0m [37m"InventoryBatch_batchNumber"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"purchasePrice"[0m [94mAS[0m [37m"InventoryBatch_purchasePrice"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"originalQuantity"[0m [94mAS[0m [37m"InventoryBatch_originalQuantity"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"remainingQuantity"[0m [94mAS[0m [37m"InventoryBatch_remainingQuantity"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"expirationDate"[0m [94mAS[0m [37m"InventoryBatch_expirationDate"[0m[37m,[0m [37m"InventoryBatch"[0m[37m.[0m[37m"categoryId"[0m [94mAS[0m [37m"InventoryBatch_categoryId"[0m [94mFROM[0m [37m"inventory_batches"[0m [37m"InventoryBatch"[0m
+[IPC] window:close called
+ERROR: The process "1432" not found.

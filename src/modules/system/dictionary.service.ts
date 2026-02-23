@@ -60,12 +60,18 @@ export class DictionaryService {
     }
 
     async getDictionaries(): Promise<{ [category: string]: Dictionary[] }> {
+        console.log("[DB] Fetching dictionaries...");
         const all = await this.repo.find({
             order: { category: 'ASC', value: 'ASC' }
         });
 
         // Group by category
         const grouped: { [category: string]: Dictionary[] } = {};
+
+        // Initialize with default categories to ensure stability
+        const categories = ['UNIT', 'MATERIAL_CATEGORY', 'SERVICE_TYPE', 'TAX_RATE'];
+        categories.forEach(cat => grouped[cat] = []);
+
         for (const item of all) {
             if (!grouped[item.category]) {
                 grouped[item.category] = [];
@@ -74,6 +80,7 @@ export class DictionaryService {
         }
         return grouped;
     }
+
 
     async addDictionary(category: string, value: string, code?: string): Promise<Dictionary> {
         const entry = new Dictionary();

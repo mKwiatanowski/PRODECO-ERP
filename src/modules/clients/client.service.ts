@@ -1,5 +1,5 @@
 import { DataSource } from "typeorm"
-import { Client } from "./domain/client.entity"
+import { Client } from "../../database/entities/client.entity"
 
 export class ClientService {
     constructor(private dataSource: DataSource) { }

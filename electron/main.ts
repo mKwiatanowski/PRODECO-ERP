@@ -6,6 +6,8 @@ import { FinanceService } from '../src/modules/finance/finance.service'
 import { ProjectService } from '../src/modules/projects/project.service'
 import { ClientService } from '../src/modules/clients/client.service'
 import { DictionaryService } from '../src/modules/system/dictionary.service'
+import { PrintService } from '../src/services/print.service'
+import { KsefService } from '../src/services/ksef.service'
 
 // Main Process Logic
 process.env.DIST = path.join(__dirname, '../dist')
@@ -81,6 +83,8 @@ app.whenReady().then(async () => {
     const financeService = new FinanceService(AppDataSource)
     const projectService = new ProjectService(AppDataSource)
     const clientService = new ClientService(AppDataSource)
+    const printService = new PrintService()
+    const ksefService = new KsefService()
 
     const dictionaryService = new DictionaryService(AppDataSource)
     await dictionaryService.seedDefaults()
@@ -95,10 +99,7 @@ app.whenReady().then(async () => {
     })
 
     ipcMain.handle('inventory:getAll', async () => {
-        // START HACK: Temporary mock until findAll logic is added to service
-        const repo = AppDataSource.getRepository('InventoryBatch')
-        return await repo.find({ order: { createdAt: 'DESC' } })
-        // END HACK
+        return await inventoryService.getStockLevels()
     })
 
     ipcMain.handle('inventory:getDocuments', async () => {
@@ -106,12 +107,24 @@ app.whenReady().then(async () => {
     })
 
     ipcMain.handle('inventory:addStock', async (_, data) => {
-        const { productId, batchNumber, quantity, price, categoryId } = data
-        return await inventoryService.addStock(productId, batchNumber, quantity, price, categoryId)
+        const { productId, batchNumber, quantity, price, categoryId, unit } = data
+        return await inventoryService.addStock(productId, batchNumber, quantity, price, unit, categoryId)
     })
 
     ipcMain.handle('inventory:getValue', async () => {
         return await inventoryService.getTotalInventoryValue()
+    })
+
+    ipcMain.handle('inventory:getProducts', async () => {
+        return await inventoryService.getProducts()
+    })
+
+    ipcMain.handle('inventory:getProductHistory', async (_, productId) => {
+        return await inventoryService.getProductHistory(productId)
+    })
+
+    ipcMain.handle('inventory:getInventoryDocumentDetails', async (_, documentId) => {
+        return await inventoryService.getInventoryDocumentDetails(documentId)
     })
 
     ipcMain.handle('finance:createInvoice', async (_, data) => {
@@ -119,7 +132,30 @@ app.whenReady().then(async () => {
     })
 
     ipcMain.handle('finance:getInvoices', async () => {
-        return await financeService.getPurchaseInvoices()
+        return await financeService.getAllInvoices() // Renamed to avoid confusion with legacy
+    })
+
+    ipcMain.handle('finance:addInvoice', async (_, invoice, items) => {
+        return await financeService.addInvoice(invoice, items)
+    })
+    ipcMain.handle('finance:updateInvoice', async (_, id, invoice, items) => {
+        return await financeService.updateInvoice(id, invoice, items)
+    })
+
+    ipcMain.handle('finance:getFinancialSummary', async () => {
+        return await financeService.getFinancialSummary()
+    })
+
+    ipcMain.handle('finance:printInvoice', async (_, invoiceId) => {
+        return await printService.printInvoice(invoiceId)
+    })
+
+    ipcMain.handle('finance:sendToKsef', async (_, invoiceId) => {
+        // Generujemy XML (logowanie)
+        await ksefService.generateKsefXml(invoiceId)
+        // Aktualizujemy status na OCZEKUJE (symulacja)
+        // W realnym systemie tutaj byłaby wysyłka asynchroniczna
+        return await ksefService.updateKsefStatus(invoiceId, 'OCZEKUJE' as any)
     })
 
     ipcMain.handle('clients:create', async (_, data) => {

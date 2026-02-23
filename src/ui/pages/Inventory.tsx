@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ProductList } from '../modules/inventory/ProductList';
 import { DocumentList } from '../modules/inventory/DocumentList';
 import { ManualReceipt } from '../modules/inventory/ManualReceipt';
-import { Plus, X, PackageOpen, FileText } from 'lucide-react';
+import { Plus, PackageOpen, FileText } from 'lucide-react';
 
 export const Inventory: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -57,16 +57,9 @@ export const Inventory: React.FC = () => {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 [-webkit-app-region:no-drag]">
-                    <div className="bg-slate-800 rounded-2xl w-full max-w-md shadow-2xl border border-slate-700 relative animate-in fade-in zoom-in duration-200">
-                        <button
-                            onClick={() => setIsModalOpen(false)}
-                            aria-label="Zamknij Modal"
-                            className="absolute right-4 top-4 text-slate-400 hover:text-white transition-colors"
-                        >
-                            <X className="w-6 h-6" />
-                        </button>
+                    <div className="bg-slate-800 rounded-2xl w-full max-w-xl shadow-2xl border border-slate-700 relative animate-in fade-in zoom-in duration-200">
                         <div className="p-1">
-                            <ManualReceipt onSuccess={handleSuccess} />
+                            <ManualReceipt onSuccess={handleSuccess} onClose={() => setIsModalOpen(false)} />
                         </div>
                     </div>
                 </div>

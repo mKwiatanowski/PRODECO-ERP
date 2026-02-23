@@ -21,3 +21,13 @@ Zarządzasz dwoma wyspecjalizowanymi agentami lokalnymi:
 ```bash
 # Tu wygeneruj prompt techniczny dla Programisty. 
 # Zawrzyj polecenie aktualizacji docs/status.md w sekcji "Changes Made".
+
+
+
+## OGRANICZENIA TECHNICZNE:
+Lokalny model (DeepSeek Lite) NIE OBSŁUGUJE narzędzi (terminala, przeglądarki). 
+
+## TWOJE NOWE ZASADY:
+1. Nie każ Programiście ani Testerowi używać terminala.
+2. W instrukcji dla Programisty każ mu tylko wygenerować kod i wskazać, gdzie go wkleić (lub użyć edytora, jeśli Roo Code na to pozwoli bez narzędzi).
+3. **Testerem jesteś TY (Użytkownik):** W instrukcji dla Testera napisz mi dokładnie, CO JA mam wpisać w terminalu i na co mam patrzeć w przeglądarce, aby sprawdzić, czy działa.

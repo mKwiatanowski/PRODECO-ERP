@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { BookMarked, Plus, Save, X, Hash, Tag, Scale, Briefcase } from 'lucide-react';
-
-interface DictionaryItem {
-    id: string;
-    category: string;
-    code: string;
-    value: string;
-    isSystem: boolean;
-}
+import { DictionaryItem } from '../../api/api';
 
 const CATEGORY_LABELS: Record<string, { label: string, icon: React.ReactNode }> = {
     'UNIT': { label: 'Jednostki Miary', icon: <Scale className="w-5 h-5 text-emerald-400" /> },
@@ -31,8 +24,7 @@ export const Dictionaries: React.FC = () => {
     const loadDictionaries = async () => {
         setIsLoading(true);
         try {
-            // @ts-ignore
-            const data = await window.electron.getDictionaries();
+            const data = await window.electron.dictionaries.getAll();
             setDictionaries(data);
         } catch (error) {
             console.error("Failed to load dictionaries", error);
@@ -52,16 +44,14 @@ export const Dictionaries: React.FC = () => {
 
         try {
             if (editId) {
-                // @ts-ignore
-                await window.electron.updateDictionary({
+                await window.electron.dictionaries.update({
                     id: editId,
                     value: newValue,
                     code: newCode || undefined
                 });
                 toast.success("Wartość zaktualizowana.");
             } else {
-                // @ts-ignore
-                await window.electron.addDictionary({
+                await window.electron.dictionaries.add({
                     category: activeTab,
                     value: newValue,
                     code: newCode || undefined
@@ -82,8 +72,7 @@ export const Dictionaries: React.FC = () => {
     const handleDelete = async (id: string) => {
         if (!window.confirm("Czy na pewno chcesz usunąć tę wartość?")) return;
         try {
-            // @ts-ignore
-            await window.electron.deleteDictionary(id);
+            await window.electron.dictionaries.delete(id);
             toast.success("Słownik usunięty.");
             loadDictionaries();
         } catch (err: any) {
@@ -97,6 +86,7 @@ export const Dictionaries: React.FC = () => {
         setNewValue(item.value);
         setNewCode(item.code || '');
     };
+
 
     const currentItems = dictionaries[activeTab] || [];
 

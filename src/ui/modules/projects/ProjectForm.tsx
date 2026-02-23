@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { Plus, Trash2, FileText, User, Box, Layers, Play } from 'lucide-react';
+import { StockLevel } from '../../../api/api';
 
 interface ProjectFormProps {
     onSuccess?: () => void;
@@ -27,18 +28,17 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({ onSuccess, onCancel })
         const fetchInventory = async () => {
             try {
                 // @ts-ignore
-                const data = await window.electron.getInventory();
+                const data: StockLevel[] = await window.electron.getInventory();
 
-                // Group by productId to get total available
-                const grouped = data.reduce((acc: any, batch: InventoryItem) => {
-                    if (!acc[batch.productId]) {
-                        acc[batch.productId] = { ...batch, remainingQuantity: 0 };
-                    }
-                    acc[batch.productId].remainingQuantity += batch.remainingQuantity;
-                    return acc;
-                }, {});
+                // Map StockLevel to the internal InventoryItem format
+                const mapped = data.map(item => ({
+                    id: item.productId,
+                    productId: item.productId,
+                    remainingQuantity: Number(item.totalQuantity),
+                    purchasePrice: 0 // Price not available in aggregated view
+                }));
 
-                setInventory(Object.values(grouped));
+                setInventory(mapped);
             } catch (error) {
                 console.error("Failed to fetch inventory", error);
             }

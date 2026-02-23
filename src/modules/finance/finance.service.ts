@@ -1,11 +1,20 @@
-import { DataSource } from "typeorm"
+import { DataSource, EntityManager } from "typeorm"
 import { PurchaseInvoice } from "./domain/purchase-invoice.entity"
 import { PurchaseInvoiceItem } from "./domain/purchase-invoice-item.entity"
 import { InventoryService } from "../inventory/inventory.service"
 import { DocumentType } from "../inventory/domain/inventory-document.entity"
+import { Invoice, InvoiceType } from "../../database/entities/invoice.entity"
+import { Expense } from "../../database/entities/expense.entity"
+import { InvoiceService } from "../../services/invoice.service"
+import { InvoiceItem } from "../../database/entities/invoice-item.entity"
+import { Product, ProductType } from "../../database/entities/product.entity"
 
 export class FinanceService {
-    constructor(private dataSource: DataSource) { }
+    private invoiceService: InvoiceService;
+
+    constructor(private dataSource: DataSource | EntityManager) {
+        this.invoiceService = new InvoiceService();
+    }
 
     async createPurchaseInvoice(dto: {
         invoiceNumber: string,
@@ -80,12 +89,19 @@ export class FinanceService {
             await transactionalInventoryService.createDocument(DocumentType.PZ, savedInvoice.invoiceNumber, pzItems)
 
             for (const item of dto.items) {
-                await transactionalInventoryService.addStock(
-                    item.productId,
-                    item.batchNumber, // In real app, maybe auto-generate or use invoice number
-                    item.quantity,
-                    item.netPrice
-                )
+                // Check if product is TOWAR
+                const product = await transactionalEntityManager.findOne(Product, { where: { id: item.productId } });
+                if (product && product.type === ProductType.TOWAR) {
+                    await transactionalInventoryService.addStock(
+                        item.productId,
+                        item.batchNumber || savedInvoice.invoiceNumber,
+                        item.quantity,
+                        item.netPrice,
+                        product.unit
+                    )
+                } else {
+                    console.log(`[FinanceService] Skipping inventory batch for non-GOODS product: ${item.productId}`);
+                }
             }
 
             return savedInvoice
@@ -95,8 +111,52 @@ export class FinanceService {
     async getPurchaseInvoices(): Promise<PurchaseInvoice[]> {
         return await this.dataSource.getRepository(PurchaseInvoice).find({
             order: {
-                createdAt: 'DESC' // or invoiceDate, let's stick to createdAt for newest first
+                createdAt: 'DESC'
             }
         });
+    }
+
+    // Metody Modułu Finansowego (Master Plan)
+    async getAllInvoices(): Promise<Invoice[]> {
+        return await this.dataSource.getRepository(Invoice).find({
+            relations: ["items"],
+            order: {
+                issueDate: 'DESC'
+            }
+        });
+    }
+
+    async addInvoice(invoicePayload: Partial<Invoice>, items: Partial<InvoiceItem>[]): Promise<Invoice> {
+        return await this.invoiceService.createInvoice(invoicePayload, items);
+    }
+
+    async updateInvoice(id: string, invoicePayload: Partial<Invoice>, items: Partial<InvoiceItem>[]): Promise<Invoice> {
+        return await this.invoiceService.updateInvoice(id, invoicePayload, items);
+    }
+
+    async getFinancialSummary(): Promise<{ totalIncomesCents: number, totalExpensesCents: number, balanceCents: number }> {
+        const invoices = await this.dataSource.getRepository(Invoice).find();
+        const expenses = await this.dataSource.getRepository(Expense).find();
+
+        let totalIncomesCents = 0;
+        let totalExpensesCents = 0;
+
+        invoices.forEach(inv => {
+            if (inv.type === InvoiceType.SALE) {
+                totalIncomesCents += inv.totalGrossCents;
+            } else {
+                totalExpensesCents += inv.totalGrossCents;
+            }
+        });
+
+        expenses.forEach(exp => {
+            totalExpensesCents += exp.amountCents;
+        });
+
+        return {
+            totalIncomesCents,
+            totalExpensesCents,
+            balanceCents: totalIncomesCents - totalExpensesCents
+        };
     }
 }
