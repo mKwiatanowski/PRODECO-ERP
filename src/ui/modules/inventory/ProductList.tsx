@@ -47,11 +47,11 @@ export const ProductList: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-slate-800 rounded-xl shadow-2xl border border-slate-700 flex flex-col flex-1 min-h-0">
+            <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800/60 rounded-3xl flex flex-col flex-1 min-h-0 overflow-hidden">
                 {/* Scrollable Container */}
                 <div className="flex-1 overflow-x-auto overflow-y-auto custom-scrollbar">
                     <table className="min-w-max w-full text-left text-slate-300 border-collapse table-fixed">
-                        <thead className="sticky top-0 z-10 bg-slate-800 shadow-md">
+                        <thead className="sticky top-0 z-10 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800">
                             <tr>
                                 <ResizableTh tableId="inventory_products" columnId="name" initialWidth={250} className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-700">Nazwa Produktu</ResizableTh>
                                 <ResizableTh tableId="inventory_products" columnId="unit" initialWidth={80} className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-700">J.M.</ResizableTh>
@@ -107,7 +107,7 @@ export const ProductList: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
-                <div className="bg-slate-800 border-t border-slate-700 px-6 py-4 text-sm text-slate-400 flex justify-between items-center">
+                <div className="bg-slate-900/60 border-t border-slate-800/60 px-6 py-4 text-sm text-slate-400 flex justify-between items-center">
                     <div>
                         Łącznie pozycji (filtrowane): <span className="text-white font-bold">{filteredProducts.length}</span>
                     </div>

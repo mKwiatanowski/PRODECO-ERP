@@ -15,18 +15,20 @@ export const Inventory: React.FC = () => {
     };
 
     return (
-        <div className="h-full flex flex-col p-8 bg-[#0d1117]">
-            <div className="flex justify-between items-center mb-6 flex-shrink-0">
+        <div className="h-full flex flex-col p-8 bg-slate-950 min-h-screen text-slate-200">
+            <div className="flex justify-between items-center mb-8 flex-shrink-0">
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Magazyn</h1>
-                    <p className="text-slate-400 mt-1">Zarządzanie stanami magazynowymi i obiegiem dokumentów</p>
+                    <h1 className="text-4xl font-extrabold text-white tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-500">
+                        Magazyn
+                    </h1>
+                    <p className="text-slate-500 mt-2 text-lg">Zarządzanie stanami magazynowymi i obiegiem dokumentów</p>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg hover:shadow-emerald-500/25"
+                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95"
                 >
                     <Plus className="w-5 h-5" />
-                    Dodaj Towar (Ręcznie - Bez FV)
+                    Nowa Dostawa (Ręcznie)
                 </button>
             </div>
 
@@ -34,15 +36,15 @@ export const Inventory: React.FC = () => {
             <div className="flex gap-4 mb-6 border-b border-slate-800 pb-px">
                 <button
                     onClick={() => setActiveTab('STAN')}
-                    className={`flex items-center gap-2 pb-3 px-2 border-b-2 transition-all font-medium ${activeTab === 'STAN' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-700'}`}
+                    className={`flex items-center gap-2 pb-3 px-2 border-b-2 transition-all font-bold text-sm tracking-wide ${activeTab === 'STAN' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-800'}`}
                 >
-                    <PackageOpen className="w-5 h-5" /> Stany Magazynowe
+                    <PackageOpen className="w-5 h-5" /> STANY MAGAZYNOWE
                 </button>
                 <button
                     onClick={() => setActiveTab('DOKUMENTY')}
-                    className={`flex items-center gap-2 pb-3 px-2 border-b-2 transition-all font-medium ${activeTab === 'DOKUMENTY' ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-700'}`}
+                    className={`flex items-center gap-2 pb-3 px-2 border-b-2 transition-all font-bold text-sm tracking-wide ${activeTab === 'DOKUMENTY' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-500 hover:text-slate-300 hover:border-slate-800'}`}
                 >
-                    <FileText className="w-5 h-5" /> Obieg Dokumentów
+                    <FileText className="w-5 h-5" /> OBIEG DOKUMENTÓW
                 </button>
             </div>
 

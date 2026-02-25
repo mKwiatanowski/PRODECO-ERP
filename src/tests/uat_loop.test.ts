@@ -72,11 +72,12 @@ describe("UAT: Wielka Pętla PRODECO ERP", () => {
             isActive: true
         });
 
-        // KROK 2: Zakup (PZ)
+        // KROK 2: Zakup (FZ)
         const purchaseInvoiceData: Partial<Invoice> = {
             type: InvoiceType.PURCHASE,
-            invoiceNumber: "FZ/2026/02/001",
+            number: "FZ/2026/02/001",
             issueDate: new Date(),
+            saleDate: new Date(),
             dueDate: new Date(),
             nip: "1234567890",
             currency: "PLN"
@@ -84,11 +85,16 @@ describe("UAT: Wielka Pętla PRODECO ERP", () => {
 
         const purchaseItems: Partial<InvoiceItem>[] = [{
             productId: nawoz.id,
+            description: "Nawóz",
             quantity: 100,
             priceNetCents: 10000 * 100,
             vatRate: "8%",
             vatValueCents: 800 * 100,
-            priceGrossCents: 10800 * 100
+            priceGrossCents: 10800 * 100,
+            netValue: 10000,
+            vatValue: 800,
+            grossValue: 10800,
+            netPrice: 100
         }];
 
         await invoiceService.createInvoice(purchaseInvoiceData, purchaseItems);
@@ -104,8 +110,9 @@ describe("UAT: Wielka Pętla PRODECO ERP", () => {
         // KROK 3 & 4: Sprzedaż i Walidacja Finansowa
         const saleInvoiceData: Partial<Invoice> = {
             type: InvoiceType.SALE,
-            invoiceNumber: "FS/2026/02/001",
+            number: "FS/2026/02/001",
             issueDate: new Date(),
+            saleDate: new Date(),
             dueDate: new Date(),
             nip: "1234567890",
             currency: "PLN"
@@ -119,27 +126,37 @@ describe("UAT: Wielka Pętla PRODECO ERP", () => {
         const saleItems: Partial<InvoiceItem>[] = [
             {
                 productId: nawoz.id,
+                description: "Nawóz",
                 quantity: 10,
                 priceNetCents: item1Net,
                 vatRate: "8%",
-                vatValueCents: item1Calc.vatCents,
-                priceGrossCents: item1Calc.grossCents
+                vatValueCents: item1Calc.vat,
+                priceGrossCents: item1Calc.gross,
+                netValue: item1Net / 100,
+                vatValue: item1Calc.vat / 100,
+                grossValue: item1Calc.gross / 100,
+                netPrice: 10
             },
             {
                 productId: usluga.id,
+                description: "Usługa",
                 quantity: 1,
                 priceNetCents: item2Net,
                 vatRate: "23%",
-                vatValueCents: item2Calc.vatCents,
-                priceGrossCents: item2Calc.grossCents
+                vatValueCents: item2Calc.vat,
+                priceGrossCents: item2Calc.gross,
+                netValue: item2Net / 100,
+                vatValue: item2Calc.vat / 100,
+                grossValue: item2Calc.gross / 100,
+                netPrice: 200
             }
         ];
 
         const savedSaleInvoice = await invoiceService.createInvoice(saleInvoiceData, saleItems);
-        const expectedTotalGross = item1Calc.grossCents + item2Calc.grossCents;
+        const expectedTotalGross = (item1Calc.gross + item2Calc.gross) / 100;
 
-        expect(savedSaleInvoice.totalGrossCents).toBe(expectedTotalGross);
-        results.push({ step: "Walidacja sumy faktury (8% + 23%)", status: "PASS", logs: `Suma: ${savedSaleInvoice.totalGrossCents / 100} PLN` });
+        expect(Number(savedSaleInvoice.totalGross)).toBe(expectedTotalGross);
+        results.push({ step: "Walidacja sumy faktury (8% + 23%)", status: "PASS", logs: `Suma: ${savedSaleInvoice.totalGross} PLN` });
 
         // KROK 5: Integracja KSeF Mock
         await ksefService.updateKsefStatus(savedSaleInvoice.id, KsefStatus.OCZEKUJE);

@@ -80,9 +80,9 @@ export const DocumentList: React.FC = () => {
     };
 
     return (
-        <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden flex flex-col h-full shadow-xl">
+        <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800/60 rounded-3xl overflow-hidden flex flex-col h-full shadow-xl">
             {/* Header Toolbar */}
-            <div className="p-6 border-b border-slate-700 bg-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="p-6 border-b border-slate-800/60 bg-slate-900/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                     <FileText className="w-6 h-6 text-emerald-500" />
                     <h2 className="text-xl font-bold text-white tracking-tight">Dokumenty Magazynowe</h2>
@@ -132,16 +132,16 @@ export const DocumentList: React.FC = () => {
             </div>
 
             {/* Table */}
-            <div className="flex-1 overflow-x-auto overflow-y-auto bg-[#0d1117] custom-scrollbar">
+            <div className="flex-1 overflow-x-auto overflow-y-auto bg-transparent custom-scrollbar">
                 <table className="min-w-max w-full text-left border-collapse table-fixed">
-                    <thead className="bg-[#161b22] sticky top-0 z-10 shadow-sm border-b border-slate-700">
+                    <thead className="bg-slate-900/90 backdrop-blur-xl sticky top-0 z-10 shadow-sm border-b border-slate-800">
                         <tr>
-                            <ResizableTh tableId="inventory_documents" columnId="number" initialWidth={200} className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-700">Nr Dokumentu</ResizableTh>
-                            <ResizableTh tableId="inventory_documents" columnId="type" initialWidth={100} className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-700 text-center">Typ</ResizableTh>
-                            <ResizableTh tableId="inventory_documents" columnId="date" initialWidth={200} className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-700">Data Wystawienia</ResizableTh>
-                            <ResizableTh tableId="inventory_documents" columnId="ref" initialWidth={250} className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-700">Identyfikator Ref.</ResizableTh>
-                            <ResizableTh tableId="inventory_documents" columnId="items" initialWidth={120} className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-700 text-right">Ilość Poz.</ResizableTh>
-                            <th className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-700 text-right w-24">Akcje</th>
+                            <ResizableTh tableId="inventory_documents" columnId="number" initialWidth={200} className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">Nr Dokumentu</ResizableTh>
+                            <ResizableTh tableId="inventory_documents" columnId="type" initialWidth={100} className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800 text-center">Typ</ResizableTh>
+                            <ResizableTh tableId="inventory_documents" columnId="date" initialWidth={200} className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">Data Wystawienia</ResizableTh>
+                            <ResizableTh tableId="inventory_documents" columnId="ref" initialWidth={250} className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800">Identyfikator Ref.</ResizableTh>
+                            <ResizableTh tableId="inventory_documents" columnId="items" initialWidth={120} className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800 text-right">Ilość Poz.</ResizableTh>
+                            <th className="px-6 py-4 font-semibold text-slate-400 uppercase text-xs tracking-wider border-b border-slate-800 text-right w-24">Akcje</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-700/50">
@@ -200,7 +200,7 @@ export const DocumentList: React.FC = () => {
             </div>
 
             {/* Footer Summary */}
-            <div className="bg-[#161b22] px-6 py-4 text-sm text-slate-400 flex justify-between items-center border-t border-slate-700">
+            <div className="bg-slate-900/60 px-6 py-4 text-sm text-slate-400 flex justify-between items-center border-t border-slate-800/60">
                 <span>Wyświetlono: <strong className="text-emerald-400">{filteredDocuments.length}</strong> z <strong className="text-white">{documents.length}</strong></span>
                 <span>System ERP: Obieg Zamknięty</span>
             </div>

@@ -22,7 +22,7 @@ async function debugDb() {
         });
         console.log("\n--- INVOICES ---");
         invoices.forEach(inv => {
-            console.log(`[${inv.id}] ${inv.invoiceNumber} | Type: ${inv.type} | Total Gross: ${inv.totalGrossCents}`);
+            console.log(`[${inv.id}] ${inv.number} | Type: ${inv.type} | Total Gross: ${inv.totalGrossCents}`);
             inv.items?.forEach(item => {
                 console.log(`  - Item: ${item.productName} | ProductID: ${item.productId} | Qty: ${item.quantity}`);
             });

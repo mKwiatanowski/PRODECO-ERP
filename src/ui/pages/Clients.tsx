@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { ClientForm } from '../modules/clients/ClientForm';
 import { ResizableTh } from '../components/ResizableTh';
-import { Plus, X, Building, User, MapPin, Phone, Hash, Search } from 'lucide-react';
+import { Plus, X, Building, User, Search } from 'lucide-react';
 
 import { Client } from '../../api/api';
 
@@ -70,15 +70,17 @@ export const Clients: React.FC = () => {
     };
 
     return (
-        <div className="h-full flex flex-col p-8">
+        <div className="p-8 bg-slate-950 min-h-screen text-slate-200 font-sans">
             <div className="flex justify-between items-center mb-8 flex-shrink-0">
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Klienci i Kontrahenci</h1>
-                    <p className="text-slate-400 mt-1">Zarządzanie bazą odbiorców i dostawców</p>
+                    <h1 className="text-4xl font-extrabold text-white tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-500">
+                        Klienci i Kontrahenci
+                    </h1>
+                    <p className="text-slate-500 mt-2 text-lg">Zarządzanie bazą odbiorców i dostawców</p>
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg hover:shadow-indigo-500/25"
+                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-indigo-500/20 hover:scale-105 active:scale-95"
                 >
                     <Plus className="w-5 h-5" />
                     Dodaj Klienta
@@ -86,76 +88,61 @@ export const Clients: React.FC = () => {
             </div>
 
             {/* Filters Toolbar */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                <div className="flex space-x-1 bg-slate-900/50 p-1 rounded-xl border border-slate-800 backdrop-blur-sm shadow-inner">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div className="flex space-x-1 bg-slate-950/50 p-1 rounded-xl border border-slate-800 shadow-inner">
                     <button
                         onClick={() => setActiveTab('ALL')}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === 'ALL' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                        className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${activeTab === 'ALL' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'}`}
                     >
-                        Wszyscy
+                        WSZYSCY
                     </button>
                     <button
                         onClick={() => setActiveTab('CUSTOMER')}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === 'CUSTOMER' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                        className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${activeTab === 'CUSTOMER' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'}`}
                     >
-                        Odbiorcy (Klienci)
+                        ODBIORCY
                     </button>
                     <button
                         onClick={() => setActiveTab('SUPPLIER')}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === 'SUPPLIER' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                        className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${activeTab === 'SUPPLIER' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800/50'}`}
                     >
-                        Dostawcy
+                        DOSTAWCY
                     </button>
                 </div>
-                <div className="relative w-full sm:w-[300px]">
-                    <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <div className="relative w-full sm:w-80">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
                     <input
                         type="text"
-                        placeholder="Szukaj klienta po nazwie, NIP lub telefonie..."
+                        placeholder="Szukaj po nazwie, NIP lub telefonie..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all shadow-inner"
+                        className="w-full bg-slate-950/50 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all placeholder-slate-600"
                     />
                 </div>
             </div>
 
-            <div className="flex-1 min-h-0">
-                <div className="bg-slate-900 rounded-2xl shadow-2xl border border-slate-800 flex flex-col h-full overflow-hidden">
+            <div className="flex-1 min-h-0 bg-slate-900/40 backdrop-blur-md border border-slate-800/60 rounded-3xl overflow-hidden shadow-2xl">
+                <div className="flex flex-col h-full overflow-hidden">
                     <div className="flex-1 overflow-x-auto overflow-y-auto custom-scrollbar">
-                        <table className="min-w-max w-full text-left text-sm text-slate-300 table-fixed">
-                            <thead className="sticky top-0 z-10 bg-slate-900/95 backdrop-blur-sm shadow-md border-b border-slate-800">
+                        <table className="min-w-max w-full text-left border-collapse table-fixed">
+                            <thead className="sticky top-0 z-10 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800">
                                 <tr>
-                                    <ResizableTh tableId="clients" columnId="id" initialWidth={80} className="px-6 py-5 font-semibold text-slate-400 uppercase text-xs tracking-wider">
-                                        ID
-                                    </ResizableTh>
-                                    <ResizableTh tableId="clients" columnId="name" initialWidth={250} className="px-6 py-5 font-semibold text-slate-400 uppercase text-xs tracking-wider">
-                                        <div className="flex items-center gap-2"><User className="w-4 h-4" /> Nazwa / Firma</div>
-                                    </ResizableTh>
-                                    <ResizableTh tableId="clients" columnId="type" initialWidth={150} className="px-6 py-5 font-semibold text-slate-400 uppercase text-xs tracking-wider">
-                                        Typ
-                                    </ResizableTh>
-                                    <ResizableTh tableId="clients" columnId="nip" initialWidth={120} className="px-6 py-5 font-semibold text-slate-400 uppercase text-xs tracking-wider">
-                                        <div className="flex items-center gap-2"><Hash className="w-4 h-4" /> NIP</div>
-                                    </ResizableTh>
-                                    <ResizableTh tableId="clients" columnId="phone" initialWidth={150} className="px-6 py-5 font-semibold text-slate-400 uppercase text-xs tracking-wider">
-                                        <div className="flex items-center gap-2"><Phone className="w-4 h-4" /> Kontakt</div>
-                                    </ResizableTh>
-                                    <ResizableTh tableId="clients" columnId="address" initialWidth={200} className="px-6 py-5 font-semibold text-slate-400 uppercase text-xs tracking-wider">
-                                        <div className="flex items-center gap-2"><MapPin className="w-4 h-4" /> Adres</div>
-                                    </ResizableTh>
-                                    <ResizableTh tableId="clients" columnId="status" initialWidth={100} className="px-6 py-5 font-semibold text-slate-400 uppercase text-xs tracking-wider text-center">
-                                        Status
-                                    </ResizableTh>
+                                    <ResizableTh tableId="clients" columnId="clientNumber" initialWidth={150} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest">Nr Klienta</ResizableTh>
+                                    <ResizableTh tableId="clients" columnId="name" initialWidth={250} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest">Nazwa / Firma</ResizableTh>
+                                    <ResizableTh tableId="clients" columnId="type" initialWidth={150} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest">Typ</ResizableTh>
+                                    <ResizableTh tableId="clients" columnId="nip" initialWidth={120} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest">NIP</ResizableTh>
+                                    <ResizableTh tableId="clients" columnId="phone" initialWidth={150} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest">Kontakt</ResizableTh>
+                                    <ResizableTh tableId="clients" columnId="address" initialWidth={200} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest">Adres</ResizableTh>
+                                    <ResizableTh tableId="clients" columnId="status" initialWidth={100} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest text-center">Status</ResizableTh>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-800/50">
+                            <tbody className="divide-y divide-slate-800/40">
                                 {filteredClients.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="px-6 py-16 text-center">
+                                        <td colSpan={7} className="px-6 py-20 text-center">
                                             <div className="flex flex-col items-center justify-center text-slate-500">
                                                 <UsersIcon className="w-12 h-12 mb-4 text-slate-700" />
-                                                <p className="text-lg font-medium text-slate-400 mb-1">{searchTerm ? 'Brak klientów pasujących do wyszukiwania.' : 'Brak klientów w bazie'}</p>
-                                                {!searchTerm && <p className="text-sm">Kliknij "Dodaj Klienta", aby rozpocząć budowanie bazy CRM.</p>}
+                                                <p className="text-lg font-medium text-slate-400 mb-1">{searchTerm ? 'Brak dopasowań.' : 'Brak klientów w bazie.'}</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -163,13 +150,12 @@ export const Clients: React.FC = () => {
                                     filteredClients.map((client) => (
                                         <tr key={client.id}
                                             onDoubleClick={() => handleOpenModal(client)}
-                                            className={`transition-colors duration-150 group cursor-pointer ${!client.isActive ? 'bg-slate-900/40 opacity-75' : 'hover:bg-slate-800/40'}`}
-                                            title="Zanotowano dwukrotne kliknięcie? Otworzy się tryb edycji."
+                                            className={`transition-colors group cursor-pointer border-l-2 border-transparent hover:border-indigo-500 ${!client.isActive ? 'bg-slate-900/20 opacity-60' : 'hover:bg-slate-800/30'}`}
                                         >
-                                            <td className="px-6 py-4 font-mono text-slate-500 text-xs overflow-hidden text-ellipsis whitespace-nowrap">
-                                                {client.id.split('-')[0]}
+                                            <td className="px-6 py-4 font-mono text-indigo-400 text-xs font-bold overflow-hidden text-ellipsis whitespace-nowrap">
+                                                {client.clientNumber || '-'}
                                             </td>
-                                            <td className={`px-6 py-4 font-semibold transition-colors overflow-hidden text-ellipsis whitespace-nowrap ${!client.isActive ? 'text-slate-500 line-through' : 'text-slate-200 group-hover:text-indigo-400'}`}>
+                                            <td className={`px-6 py-4 font-bold transition-colors overflow-hidden text-ellipsis whitespace-nowrap ${!client.isActive ? 'text-slate-500 line-through' : 'text-slate-100 group-hover:text-indigo-400'}`}>
                                                 {client.name}
                                             </td>
                                             <td className="px-6 py-4 overflow-hidden text-ellipsis whitespace-nowrap">
@@ -197,8 +183,8 @@ export const Clients: React.FC = () => {
                     </div>
                     {/* Minimal Footer */}
                     <div className="bg-slate-900 border-t border-slate-800 px-6 py-3 flex justify-between items-center z-10">
-                        <span className="text-xs text-slate-500 font-medium">Baza CRM Prodeco</span>
-                        <span className="text-xs text-slate-400 font-medium bg-slate-800 px-3 py-1 rounded-full">
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Baza CRM Prodeco</span>
+                        <span className="text-xs text-slate-400 font-medium bg-slate-950/50 px-3 py-1 rounded-full border border-slate-800">
                             Łącznie: {filteredClients.length}
                         </span>
                     </div>

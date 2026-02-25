@@ -7,6 +7,7 @@ import { Inventory } from './pages/Inventory';
 import { Projects } from './pages/Projects';
 import { Clients } from './pages/Clients';
 import { Dictionaries } from './pages/Dictionaries';
+import { Settings } from './pages/Settings';
 import { FinanceDashboard } from '../modules/finance/FinanceDashboard';
 
 import { Header } from './components/Header';
@@ -36,6 +37,7 @@ function App() {
                             <Route path="/finance" element={<FinanceDashboard />} />
                             <Route path="/projects" element={<Projects />} />
                             <Route path="/clients" element={<Clients />} />
+                            <Route path="/settings" element={<Settings />} />
                             <Route path="/dictionaries" element={<Dictionaries />} />
                             <Route path="*" element={<Navigate to="/" replace />} />
                         </Routes>

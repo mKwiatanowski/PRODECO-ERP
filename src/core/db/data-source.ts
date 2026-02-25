@@ -16,6 +16,9 @@ import { Expense } from "../../database/entities/expense.entity"
 import { Product } from "../../database/entities/product.entity"
 import { InvoiceItem } from "../../database/entities/invoice-item.entity"
 import { InventoryTransaction } from "../../database/entities/inventory-transaction.entity"
+import { CompanyProfile } from "../../database/entities/company-profile.entity"
+import { NumberingScheme } from "../../modules/system/domain/numbering-scheme.entity"
+import { NumberingCounter } from "../../modules/system/domain/numbering-counter.entity"
 
 // Database path handling for Electron
 let dbPath = ':memory:'
@@ -54,7 +57,10 @@ export const AppDataSource = new DataSource({
         Expense,
         Product,
         InvoiceItem,
-        InventoryTransaction
+        InventoryTransaction,
+        CompanyProfile,
+        NumberingScheme,
+        NumberingCounter
     ],
     migrations: [],
     subscribers: [],

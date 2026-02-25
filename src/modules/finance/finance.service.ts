@@ -8,12 +8,20 @@ import { Expense } from "../../database/entities/expense.entity"
 import { InvoiceService } from "../../services/invoice.service"
 import { InvoiceItem } from "../../database/entities/invoice-item.entity"
 import { Product, ProductType } from "../../database/entities/product.entity"
+import { NumberingService } from "../system/numbering.service"
+import { PdfGeneratorService } from "./pdf-generator.service"
 
 export class FinanceService {
     private invoiceService: InvoiceService;
+    private numberingService: NumberingService;
+    private pdfGeneratorService: PdfGeneratorService;
 
     constructor(private dataSource: DataSource | EntityManager) {
         this.invoiceService = new InvoiceService();
+        // Fallback to AppDataSource if only manager is provided (ideally we want DataSource)
+        const ds = (dataSource instanceof EntityManager) ? dataSource.connection : dataSource;
+        this.numberingService = new NumberingService(ds);
+        this.pdfGeneratorService = new PdfGeneratorService(ds);
     }
 
     async createPurchaseInvoice(dto: {
@@ -72,12 +80,6 @@ export class FinanceService {
             // Save Invoice using transactional manager
             const savedInvoice = await transactionalEntityManager.save(PurchaseInvoice, invoice)
 
-            // Create Inventory Batches for each item
-            // We need to use the inventory service but ensure it uses the SAME transaction.
-            // Refactoring InventoryService to accept a manager in methods or constructor is good.
-            // My InventoryService already accepts `DataSource | EntityManager`.
-            // So I should instantiate a temporary InventoryService scoped to this transaction.
-
             const transactionalInventoryService = new InventoryService(transactionalEntityManager)
 
             // Generate PZ Document using net price typical for accounting inventory valuation
@@ -99,8 +101,6 @@ export class FinanceService {
                         item.netPrice,
                         product.unit
                     )
-                } else {
-                    console.log(`[FinanceService] Skipping inventory batch for non-GOODS product: ${item.productId}`);
                 }
             }
 
@@ -119,7 +119,7 @@ export class FinanceService {
     // Metody Modułu Finansowego (Master Plan)
     async getAllInvoices(): Promise<Invoice[]> {
         return await this.dataSource.getRepository(Invoice).find({
-            relations: ["items"],
+            relations: ["items", "client"],
             order: {
                 issueDate: 'DESC'
             }
@@ -127,11 +127,22 @@ export class FinanceService {
     }
 
     async addInvoice(invoicePayload: Partial<Invoice>, items: Partial<InvoiceItem>[]): Promise<Invoice> {
-        return await this.invoiceService.createInvoice(invoicePayload, items);
+        // Obowiązkowe wywołanie NumberingService jeśli numer nie jest podany
+        if (!invoicePayload.number) {
+            invoicePayload.number = await this.numberingService.generateNextNumber('INVOICE');
+        }
+        const savedInvoice = await this.invoiceService.createInvoice(invoicePayload, items);
+        // TICKET 19.17: Fizyczna inkrementacja licznika po udanym zapisie
+        await this.numberingService.consumeNumber('INVOICE');
+        return savedInvoice;
     }
 
     async updateInvoice(id: string, invoicePayload: Partial<Invoice>, items: Partial<InvoiceItem>[]): Promise<Invoice> {
         return await this.invoiceService.updateInvoice(id, invoicePayload, items);
+    }
+
+    async getInvoicePdf(id: string): Promise<Uint8Array> {
+        return await this.pdfGeneratorService.generateInvoicePdf(id);
     }
 
     async getFinancialSummary(): Promise<{ totalIncomesCents: number, totalExpensesCents: number, balanceCents: number }> {
@@ -143,9 +154,9 @@ export class FinanceService {
 
         invoices.forEach(inv => {
             if (inv.type === InvoiceType.SALE) {
-                totalIncomesCents += inv.totalGrossCents;
+                totalIncomesCents += Number(inv.totalGrossCents || (inv.totalGross * 100));
             } else {
-                totalExpensesCents += inv.totalGrossCents;
+                totalExpensesCents += Number(inv.totalGrossCents || (inv.totalGross * 100));
             }
         });
 

@@ -35,19 +35,19 @@ async function runTest() {
         console.log("Creating PZ1: 10 pcs @ 100 PLN");
         await invoiceService.createInvoice({
             type: InvoiceType.PURCHASE,
-            invoiceNumber: "PZ/001/2026",
+            number: "PZ/001/2026",
             issueDate: new Date("2026-02-01"),
             dueDate: new Date("2026-02-15"),
             currency: "PLN"
         }, [
             {
                 productId: product.id,
+                description: "Zakup towaru",
                 quantity: 10,
                 priceNetCents: 10000,
                 vatRate: "23%",
                 vatValueCents: 2300,
-                priceGrossCents: 12300,
-                type: 'TOWAR' as any
+                priceGrossCents: 12300
             }
         ]);
 
@@ -55,19 +55,19 @@ async function runTest() {
         console.log("Creating PZ2: 10 pcs @ 120 PLN");
         await invoiceService.createInvoice({
             type: InvoiceType.PURCHASE,
-            invoiceNumber: "PZ/002/2026",
+            number: "PZ/002/2026",
             issueDate: new Date("2026-02-02"),
             dueDate: new Date("2026-02-16"),
             currency: "PLN"
         }, [
             {
                 productId: product.id,
+                description: "Zakup towaru",
                 quantity: 10,
                 priceNetCents: 12000,
                 vatRate: "23%",
                 vatValueCents: 2760,
-                priceGrossCents: 14760,
-                type: 'TOWAR' as any
+                priceGrossCents: 14760
             }
         ]);
 
@@ -75,19 +75,19 @@ async function runTest() {
         console.log("Creating PZ3: 10 pcs @ 150 PLN");
         await invoiceService.createInvoice({
             type: InvoiceType.PURCHASE,
-            invoiceNumber: "PZ/003/2026",
+            number: "PZ/003/2026",
             issueDate: new Date("2026-02-03"),
             dueDate: new Date("2026-02-17"),
             currency: "PLN"
         }, [
             {
                 productId: product.id,
+                description: "Zakup towaru",
                 quantity: 10,
                 priceNetCents: 15000,
                 vatRate: "23%",
                 vatValueCents: 3450,
-                priceGrossCents: 18450,
-                type: 'TOWAR' as any
+                priceGrossCents: 18450
             }
         ]);
 
@@ -95,19 +95,19 @@ async function runTest() {
         console.log("Creating WZ1: 15 pcs (FIFO should take 10 @ 100 and 5 @ 120)");
         await invoiceService.createInvoice({
             type: InvoiceType.SALE,
-            invoiceNumber: "WZ/001/2026",
+            number: "WZ/001/2026",
             issueDate: new Date("2026-02-10"),
             dueDate: new Date("2026-02-24"),
             currency: "PLN"
         }, [
             {
                 productId: product.id,
+                description: "Sprzedaż towaru",
                 quantity: 15,
                 priceNetCents: 20000,
                 vatRate: "23%",
                 vatValueCents: 4600,
-                priceGrossCents: 24600,
-                type: 'TOWAR' as any
+                priceGrossCents: 24600
             }
         ]);
 

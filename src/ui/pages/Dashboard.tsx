@@ -21,46 +21,46 @@ export const Dashboard: React.FC = () => {
     };
 
     return (
-        <div className="p-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent mb-2">
+        <div className="p-8 bg-slate-950 min-h-screen text-slate-200 font-sans">
+            <h1 className="text-4xl font-extrabold text-white tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-500 mb-2">
                 Dashboard
             </h1>
-            <p className="text-slate-400 mb-8">Witaj w systemie PRODECO ERP.</p>
+            <p className="text-slate-500 mt-2 text-lg mb-8">Witaj w systemie PRODECO ERP.</p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700 hover:border-emerald-500/30 transition-all">
+                <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-6 rounded-3xl shadow-xl hover:border-emerald-500/30 transition-all duration-300 group">
                     <div className="flex justify-between items-start mb-4">
-                        <div className="p-3 bg-emerald-500/10 rounded-lg">
-                            <TrendingUp className="w-6 h-6 text-emerald-400" />
+                        <div className="p-3 bg-emerald-500/10 rounded-2xl group-hover:bg-emerald-500/20 transition-colors">
+                            <TrendingUp className="w-8 h-8 text-emerald-500" />
                         </div>
-                        {/* Placeholder for trend */}
-                        <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">+0%</span>
+                        <span className="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-lg uppercase tracking-wider">+0%</span>
                     </div>
-                    <h2 className="text-sm font-medium text-slate-400">Wartość Magazynu</h2>
-                    <p className="text-2xl font-bold text-white mt-1">
+                    <div className="text-sm font-medium text-slate-500 uppercase tracking-widest mb-1">Wartość Magazynu</div>
+                    <div className="text-3xl font-black text-white">
                         {inventoryValue !== null ? formatCurrency(inventoryValue) : 'Ładowanie...'}
-                    </p>
+                    </div>
                 </div>
 
-                <div className="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700 hover:border-blue-500/30 transition-all">
+                <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-6 rounded-3xl shadow-xl hover:border-indigo-500/30 transition-all duration-300 group">
                     <div className="flex justify-between items-start mb-4">
-                        <div className="p-3 bg-blue-500/10 rounded-lg">
-                            <Users className="w-6 h-6 text-blue-400" />
+                        <div className="p-3 bg-indigo-500/10 rounded-2xl group-hover:bg-indigo-500/20 transition-colors">
+                            <Users className="w-8 h-8 text-indigo-500" />
                         </div>
+                        <span className="text-xs font-bold text-indigo-500 bg-indigo-500/10 px-2 py-1 rounded-lg uppercase tracking-wider">Status</span>
                     </div>
-                    <h2 className="text-sm font-medium text-slate-400">Aktywne Projekty</h2>
-                    <p className="text-2xl font-bold text-white mt-1">8</p>
+                    <div className="text-sm font-medium text-slate-500 uppercase tracking-widest mb-1">Aktywne Projekty</div>
+                    <div className="text-3xl font-black text-white">8</div>
                 </div>
 
-                <div className="bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700 hover:border-red-500/30 transition-all">
+                <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-6 rounded-3xl shadow-xl hover:border-rose-500/30 transition-all duration-300 group">
                     <div className="flex justify-between items-start mb-4">
-                        <div className="p-3 bg-red-500/10 rounded-lg">
-                            <AlertCircle className="w-6 h-6 text-red-400" />
+                        <div className="p-3 bg-rose-500/10 rounded-2xl group-hover:bg-rose-500/20 transition-colors">
+                            <AlertCircle className="w-8 h-8 text-rose-500" />
                         </div>
-                        <span className="text-xs font-mono text-red-400 bg-red-500/10 px-2 py-1 rounded">2 Pilne</span>
+                        <span className="text-xs font-bold text-rose-500 bg-rose-500/10 px-2 py-1 rounded-lg uppercase tracking-wider">Alarm</span>
                     </div>
-                    <h2 className="text-sm font-medium text-slate-400">Nieopłacone Faktury</h2>
-                    <p className="text-2xl font-bold text-white mt-1">3</p>
+                    <div className="text-sm font-medium text-slate-500 uppercase tracking-widest mb-1">Nieopłacone Faktury</div>
+                    <div className="text-3xl font-black text-white">3</div>
                 </div>
             </div>
         </div>

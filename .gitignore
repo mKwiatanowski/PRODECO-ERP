@@ -1,1 +1,11 @@
 node_modules
+dist-electron
+dist
+out
+docs/*.pdf
+docs/*.png
+out.txt
+*.env
+*.log
+src/scripts/test_*
+src/scripts/debug_*

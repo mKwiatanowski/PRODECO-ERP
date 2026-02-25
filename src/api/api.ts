@@ -35,15 +35,24 @@ export interface StockLevel {
 
 export interface Client {
     id: string;
+    clientNumber?: string;
     name: string;
     nip: string;
+    shortName?: string;
     regon?: string;
     email: string;
     phone?: string;
+    phoneNumber?: string;
     address?: string;
     street: string;
     postalCode: string;
     city: string;
+    shippingAddress?: string;
+    paymentTermsDays?: number;
+    creditLimit?: number;
+    bankAccountNumber?: string;
+    defaultDiscount?: number;
+    currency?: string;
     type: string;
     isActive?: boolean;
     createdAt: string | Date;
@@ -100,7 +109,9 @@ export interface InvoiceItemData {
 export interface InvoiceData {
     id: string;
     type: 'PURCHASE' | 'SALE';
-    invoiceNumber: string;
+    number: string;
+    /** @deprecated use `number` */
+    invoiceNumber?: string;
     issueDate: string | Date;
     dueDate: string | Date;
     clientId?: string;
@@ -113,6 +124,7 @@ export interface InvoiceData {
     isPaid: boolean;
     createdAt: string | Date;
     items?: InvoiceItemData[];
+    client?: Client;
     ksefStatus?: KsefStatus;
     ksefReferenceNumber?: string;
     ksefArchiveLink?: string;
@@ -162,14 +174,23 @@ export interface IFinanceAPI {
     addInvoice: (invoice: Partial<InvoiceData>, items: InvoiceItemData[]) => Promise<InvoiceData>;
     updateInvoice: (id: string, invoice: Partial<InvoiceData>, items: InvoiceItemData[]) => Promise<InvoiceData>;
     getFinancialSummary: () => Promise<FinancialSummary>;
-    printInvoice: (invoiceId: string) => Promise<void>;
+    printInvoice: (invoiceId: string) => Promise<{ success: boolean; path?: string; reason?: string }>;
     sendToKsef: (invoiceId: string) => Promise<void>;
+    generatePdf: (invoiceId: string) => Promise<{ success: boolean; path?: string; reason?: string }>;
 }
 
 export interface IProjectAPI {
     createProject: (data: { name: string; description?: string; clientId: string }) => Promise<Project>;
     update: (data: { id: string; name: string; description?: string; status: string; clientId: string }) => Promise<Project>;
     getAll: () => Promise<Project[]>;
+}
+
+export interface ISettingsAPI {
+    getProfile: () => Promise<any>;
+    updateProfile: (data: any) => Promise<any>;
+    getNumberingSchemes: (target?: string) => Promise<any[]>;
+    updateNumberingScheme: (data: any) => Promise<any>;
+    testNumbering: (target: string) => Promise<string>;
 }
 
 export interface IClientAPI {
@@ -187,6 +208,7 @@ export interface IElectronAPI {
     projects: IProjectAPI;
     clients: IClientAPI;
     dictionaries: IDictionaryAPI;
+    settings: ISettingsAPI;
 
     // Direct methods (legacy/flat support if needed, but moving to modular)
     getInventory: IInventoryAPI['getAll'];
@@ -207,6 +229,7 @@ export interface IElectronAPI {
     deleteDictionary: IDictionaryAPI['delete'];
     printInvoice: IFinanceAPI['printInvoice'];
     sendToKsef: IFinanceAPI['sendToKsef'];
+    generatePdf: IFinanceAPI['generatePdf'];
     getProductHistory: IInventoryAPI['getProductHistory'];
     getInventoryDocumentDetails: IInventoryAPI['getInventoryDocumentDetails'];
 

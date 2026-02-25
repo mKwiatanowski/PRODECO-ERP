@@ -1,4 +1,5 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import "reflect-metadata";
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron'
 import path from 'path'
 import { AppDataSource } from '../src/core/db/data-source'
 import { InventoryService } from '../src/modules/inventory/inventory.service'
@@ -6,8 +7,10 @@ import { FinanceService } from '../src/modules/finance/finance.service'
 import { ProjectService } from '../src/modules/projects/project.service'
 import { ClientService } from '../src/modules/clients/client.service'
 import { DictionaryService } from '../src/modules/system/dictionary.service'
-import { PrintService } from '../src/services/print.service'
+import { SettingsService } from '../src/modules/settings/settings.service'
+
 import { KsefService } from '../src/services/ksef.service'
+import { NumberingService } from '../src/modules/system/numbering.service'
 
 // Main Process Logic
 process.env.DIST = path.join(__dirname, '../dist')
@@ -83,11 +86,17 @@ app.whenReady().then(async () => {
     const financeService = new FinanceService(AppDataSource)
     const projectService = new ProjectService(AppDataSource)
     const clientService = new ClientService(AppDataSource)
-    const printService = new PrintService()
+
     const ksefService = new KsefService()
 
     const dictionaryService = new DictionaryService(AppDataSource)
+    const settingsService = new SettingsService(AppDataSource)
+    const numberingService = new NumberingService(AppDataSource)
+
     await dictionaryService.seedDefaults()
+    await numberingService.seedInitialSchemes()
+    await clientService.migrateExistingClients()
+    await settingsService.ensureCompanyProfileExists()
 
     // Register IPC Handlers
     ipcMain.handle('projects:createProject', async (_, data) => {
@@ -147,7 +156,35 @@ app.whenReady().then(async () => {
     })
 
     ipcMain.handle('finance:printInvoice', async (_, invoiceId) => {
-        return await printService.printInvoice(invoiceId)
+        try {
+            const pdfData = await financeService.getInvoicePdf(invoiceId);
+
+            // Pobierz fakturę, aby uzyskać numer do nazwy pliku
+            const invoices = await financeService.getAllInvoices();
+            const invoice = invoices.find((inv: any) => inv.id === invoiceId);
+            const invoiceNumber = invoice?.number || invoiceId;
+            const safeFileName = `Faktura_${invoiceNumber.replace(/\//g, '_')}.pdf`;
+
+            const { filePath, canceled } = await dialog.showSaveDialog({
+                title: 'Zapisz fakturę jako PDF',
+                defaultPath: safeFileName,
+                filters: [{ name: 'Pliki PDF', extensions: ['pdf'] }]
+            });
+
+            if (canceled || !filePath) return { success: false, reason: 'CANCELED' };
+
+            const fs = require('fs');
+            fs.writeFileSync(filePath, Buffer.from(pdfData));
+            console.log(`[PDF] Faktura zapisana pomyślnie: ${filePath}`);
+
+            // Automatycznie otwórz PDF w domyślnej przeglądarce
+            shell.openPath(filePath);
+
+            return { success: true, path: filePath };
+        } catch (error: any) {
+            console.error('[IPC] finance:printInvoice error:', error);
+            return { success: false, reason: error.message };
+        }
     })
 
     ipcMain.handle('finance:sendToKsef', async (_, invoiceId) => {
@@ -156,6 +193,28 @@ app.whenReady().then(async () => {
         // Aktualizujemy status na OCZEKUJE (symulacja)
         // W realnym systemie tutaj byłaby wysyłka asynchroniczna
         return await ksefService.updateKsefStatus(invoiceId, 'OCZEKUJE' as any)
+    })
+
+    ipcMain.handle('finance:generatePdf', async (_, invoiceId) => {
+        try {
+            const pdfData = await financeService.getInvoicePdf(invoiceId);
+            const { dialog } = require('electron');
+            const fs = require('fs');
+
+            const { filePath, canceled } = await dialog.showSaveDialog({
+                title: "Zapisz fakturę jako PDF",
+                defaultPath: `Faktura_${invoiceId}.pdf`,
+                filters: [{ name: "Pliki PDF", extensions: ["pdf"] }]
+            });
+
+            if (canceled || !filePath) return { success: false, reason: 'CANCELED' };
+
+            fs.writeFileSync(filePath, Buffer.from(pdfData));
+            return { success: true, path: filePath };
+        } catch (error: any) {
+            console.error('[IPC] finance:generatePdf error:', error);
+            return { success: false, reason: error.message };
+        }
     })
 
     ipcMain.handle('clients:create', async (_, data) => {
@@ -168,6 +227,10 @@ app.whenReady().then(async () => {
 
     ipcMain.handle('clients:update', async (_, data) => {
         return await clientService.updateClient(data.id, data)
+    })
+
+    ipcMain.handle('clients:fetchGusData', async (_event, nip: string) => {
+        return await clientService.fetchExternalData(nip)
     })
 
     ipcMain.handle('dictionaries:getAll', async () => {
@@ -184,6 +247,30 @@ app.whenReady().then(async () => {
 
     ipcMain.handle('dictionaries:delete', async (_, id) => {
         return await dictionaryService.deleteDictionary(id)
+    })
+
+    ipcMain.handle('settings:getProfile', async () => {
+        return await settingsService.getCompanyProfile()
+    })
+
+    ipcMain.handle('settings:updateProfile', async (_, data) => {
+        return await settingsService.updateCompanyProfile(data)
+    })
+
+    // Numbering Handlers
+    ipcMain.handle('settings:getNumberingSchemes', async (_, target) => {
+        return await numberingService.getSchemes(target)
+    })
+
+    ipcMain.handle('settings:updateNumberingScheme', async (_, data) => {
+        const { id, ...updateData } = data
+        return await numberingService.updateScheme(id, updateData)
+    })
+
+    ipcMain.handle('settings:testNumbering', async (_, target) => {
+        // This is a test method, normally called during creation of docs
+        // We use previewNextNumber to show the next number WITHOUT incrementing the counter in DB
+        return await numberingService.previewNextNumber(target)
     })
 
 

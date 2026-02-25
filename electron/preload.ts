@@ -22,6 +22,7 @@ const electronAPI = {
         getFinancialSummary: () => ipcRenderer.invoke('finance:getFinancialSummary'),
         printInvoice: (invoiceId: string) => ipcRenderer.invoke('finance:printInvoice', invoiceId),
         sendToKsef: (invoiceId: string) => ipcRenderer.invoke('finance:sendToKsef', invoiceId),
+        generatePdf: (invoiceId: string) => ipcRenderer.invoke('finance:generatePdf', invoiceId),
     },
 
 
@@ -39,6 +40,7 @@ const electronAPI = {
         create: (data: any) => ipcRenderer.invoke('clients:create', data),
         update: (data: any) => ipcRenderer.invoke('clients:update', data),
         getAll: () => ipcRenderer.invoke('clients:getAll'),
+        fetchGusData: (nip: string) => ipcRenderer.invoke('clients:fetchGusData', nip),
     },
 
     // System / Dictionaries
@@ -49,6 +51,15 @@ const electronAPI = {
         update: (data: { id: string; value: string; code?: string }) =>
             ipcRenderer.invoke('dictionaries:update', data),
         delete: (id: string) => ipcRenderer.invoke('dictionaries:delete', id),
+    },
+
+    // Settings
+    settings: {
+        getProfile: () => ipcRenderer.invoke('settings:getProfile'),
+        updateProfile: (data: any) => ipcRenderer.invoke('settings:updateProfile', data),
+        getNumberingSchemes: (target?: string) => ipcRenderer.invoke('settings:getNumberingSchemes', target),
+        updateNumberingScheme: (data: any) => ipcRenderer.invoke('settings:updateNumberingScheme', data),
+        testNumbering: (target: string) => ipcRenderer.invoke('settings:testNumbering', target),
     },
 
     // Legacy / Flat support (matching previous structure)

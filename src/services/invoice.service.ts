@@ -11,22 +11,21 @@ import { InventoryService } from "../modules/inventory/inventory.service";
 
 export class KSeFCalculator {
     /**
-     * Weryfikuje czy Netto + VAT = Brutto w groszach.
+     * Weryfikuje czy Netto + VAT = Brutto.
      */
-    static validate(netCents: number, vatCents: number, grossCents: number): boolean {
-        return netCents + vatCents === grossCents;
+    static validate(net: number, vat: number, gross: number): boolean {
+        return Math.abs((Number(net) + Number(vat)) - Number(gross)) < 0.01;
     }
 
     /**
      * Oblicza wartość VAT i Brutto na podstawie Netto i stawki procentowej.
-     * Uwaga: stawka VAT jako string np. "23%".
      */
-    static calculateFromNet(netCents: number, vatRateStr: string): { vatCents: number, grossCents: number } {
+    static calculateFromNet(net: number, vatRateStr: string): { vat: number, gross: number } {
         const rate = parseInt(vatRateStr.replace("%", ""), 10) / 100;
-        const vatCents = Math.round(netCents * rate);
+        const vat = Math.round(net * rate * 100) / 100;
         return {
-            vatCents,
-            grossCents: netCents + vatCents
+            vat,
+            gross: Math.round((net + vat) * 100) / 100
         };
     }
 }
@@ -48,9 +47,12 @@ export class InvoiceService {
             // 3. Zapis nagłówka faktury
             const invoice = manager.create(Invoice, {
                 ...invoiceData,
-                totalNetCents: totals.totalNet,
-                totalVatCents: totals.totalVat,
-                totalGrossCents: totals.totalGross
+                totalNet: totals.totalNet,
+                totalVat: totals.totalVat,
+                totalGross: totals.totalGross,
+                totalNetCents: Math.round(totals.totalNet * 100),
+                totalVatCents: Math.round(totals.totalVat * 100),
+                totalGrossCents: Math.round(totals.totalGross * 100)
             });
 
             const savedInvoice = await manager.save(invoice);
@@ -58,7 +60,7 @@ export class InvoiceService {
             // 4. Zapis pozycji faktury
             await this.saveInvoiceItems(savedInvoice.id, items, manager);
 
-            console.log(`[InvoiceService] Pomyślnie utworzono fakturę ${savedInvoice.invoiceNumber} wraz z pozycjami.`);
+            console.log(`[InvoiceService] Pomyślnie utworzono fakturę ${savedInvoice.number} wraz z pozycjami.`);
             return savedInvoice;
         });
     }
@@ -82,17 +84,22 @@ export class InvoiceService {
 
             // 4. Aktualizacja nagłówka
             const updatedInvoice = manager.merge(Invoice, existingInvoice, {
-                invoiceNumber: invoiceData.invoiceNumber ?? existingInvoice.invoiceNumber,
+                number: invoiceData.number ?? existingInvoice.number,
                 type: invoiceData.type ?? existingInvoice.type,
                 issueDate: invoiceData.issueDate ?? existingInvoice.issueDate,
+                saleDate: invoiceData.saleDate ?? existingInvoice.saleDate,
                 dueDate: invoiceData.dueDate ?? existingInvoice.dueDate,
+                paymentType: invoiceData.paymentType ?? existingInvoice.paymentType,
+                paymentStatus: invoiceData.paymentStatus ?? existingInvoice.paymentStatus,
                 nip: invoiceData.nip ?? existingInvoice.nip,
                 currency: invoiceData.currency ?? existingInvoice.currency,
-                isPaid: invoiceData.isPaid ?? existingInvoice.isPaid,
                 clientId: invoiceData.clientId ?? existingInvoice.clientId,
-                totalNetCents: totals.totalNet,
-                totalVatCents: totals.totalVat,
-                totalGrossCents: totals.totalGross
+                totalNet: totals.totalNet,
+                totalVat: totals.totalVat,
+                totalGross: totals.totalGross,
+                totalNetCents: Math.round(totals.totalNet * 100),
+                totalVatCents: Math.round(totals.totalVat * 100),
+                totalGrossCents: Math.round(totals.totalGross * 100)
             });
 
             const savedInvoice = await manager.save(updatedInvoice);
@@ -100,7 +107,7 @@ export class InvoiceService {
             // 5. Zapis nowych pozycji
             await this.saveInvoiceItems(savedInvoice.id, items, manager);
 
-            console.log(`[InvoiceService] Pomyślnie zaktualizowano fakturę ${savedInvoice.invoiceNumber}.`);
+            console.log(`[InvoiceService] Pomyślnie zaktualizowano fakturę ${savedInvoice.number}.`);
             return savedInvoice;
         });
     }
@@ -111,24 +118,29 @@ export class InvoiceService {
         let totalGross = 0;
 
         for (const item of items) {
-            if (!item.priceNetCents || !item.vatValueCents || !item.priceGrossCents) {
+            console.log("[InvoiceService] Validating item:", JSON.stringify(item));
+            if (item.netPrice === undefined || item.vatValue === undefined || item.grossValue === undefined) {
                 throw new Error("Brakujące dane finansowe w pozycji faktury.");
             }
 
-            if (!KSeFCalculator.validate(item.priceNetCents, item.vatValueCents, item.priceGrossCents)) {
-                throw new Error(`Błąd matematyczny w pozycji dla produktu ID: ${item.productId}`);
+            if (!KSeFCalculator.validate(item.netValue as number, item.vatValue as number, item.grossValue as number)) {
+                throw new Error(`Błąd matematyczny w pozycji: ${item.description}`);
             }
 
-            totalNet += item.priceNetCents;
-            totalVat += item.vatValueCents;
-            totalGross += item.priceGrossCents;
+            totalNet += Number(item.netValue);
+            totalVat += Number(item.vatValue);
+            totalGross += Number(item.grossValue);
         }
-        return { totalNet, totalVat, totalGross };
+        return {
+            totalNet: Math.round(totalNet * 100) / 100,
+            totalVat: Math.round(totalVat * 100) / 100,
+            totalGross: Math.round(totalGross * 100) / 100
+        };
     }
 
     private async processInventoryTransactions(invoiceData: Partial<Invoice>, items: Partial<InvoiceItem>[], manager: EntityManager) {
         const isSale = invoiceData.type === InvoiceType.SALE;
-        const currentInvoiceNumber = invoiceData.invoiceNumber;
+        const currentInvoiceNumber = invoiceData.number;
         if (!currentInvoiceNumber) throw new Error("Numer faktury jest wymagany do procesowania magazynu.");
 
         console.log(`[InvoiceService] Processing ${items.length} items for inventory transactions. isSale: ${isSale}`);
@@ -143,15 +155,12 @@ export class InvoiceService {
         if (invDoc) {
             console.log(`[InvoiceService] Znaleziono istniejący dokument: ${invDoc.documentNumber}. Cofanie FIFO i czyszczenie...`);
 
-            // TICKET 10.2: Musimy cofnąć konsumpcję FIFO przed usunięciem pozycji
             const oldItems = await manager.find(InventoryDocumentItem, { where: { documentId: invDoc.id } });
             for (const oldItem of oldItems) {
                 await inventoryService.revertConsumption(oldItem.id, manager);
             }
 
-            // Usuwamy stare pozycje dokumentu
             await manager.delete(InventoryDocumentItem, { documentId: invDoc.id });
-            // Usuwamy stare transakcje
             await manager.delete(InventoryTransaction, { invoiceId: currentInvoiceNumber });
 
             invDoc.date = new Date();
@@ -159,8 +168,7 @@ export class InvoiceService {
             invDoc = await manager.save(invDoc);
         }
 
-        // TICKET 10.2: Aby FIFO działało, potrzebujemy najpierw nagłówka dokumentu, by stworzyć pozycje z ID
-        if (!invDoc && items.some(i => i.type === 'TOWAR')) {
+        if (!invDoc && items.some(i => i.productId)) {
             const docType = isSale ? DocumentType.WZ : DocumentType.PZ;
             const docNumber = await this.generateInventoryDocNumber(docType, manager);
 
@@ -180,44 +188,17 @@ export class InvoiceService {
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
 
-            // Szukanie/Tworzenie produktu (Virtual Product logic)
-            if (!item.productId && item.type === 'TOWAR') {
-                const { Raw } = require("typeorm");
-                const normalizedName = item.productName!.trim();
-                const normalizedUnit = (item.unit || 'szt.').trim();
-
-                let product = await manager.findOne(Product, {
-                    where: {
-                        name: Raw((alias: string) => `LOWER(TRIM(${alias})) = LOWER(TRIM(:name))`, { name: normalizedName }),
-                        unit: Raw((alias: string) => `LOWER(TRIM(${alias})) = LOWER(TRIM(:unit))`, { unit: normalizedUnit })
-                    }
-                });
-
-                if (!product) {
-                    product = manager.create(Product, {
-                        name: normalizedName,
-                        type: ProductType.TOWAR,
-                        unit: normalizedUnit,
-                        vatRate: item.vatRate || '23%',
-                        isActive: true
-                    });
-                    product = await manager.save(product);
-                }
-                item.productId = product.id;
-            }
-
             if (!item.productId) continue;
 
             const product = await manager.findOne(Product, { where: { id: item.productId } });
             if (!product) throw new Error(`Produkt o ID ${item.productId} nie istnieje.`);
 
             if (product.type === ProductType.TOWAR) {
-                // TICKET 10.2: Tworzymy pozycję dokumentu magazynowego OD RAZU, aby mieć jej ID dla FIFO
                 const docItem = new InventoryDocumentItem();
                 docItem.documentId = invDoc!.id;
                 docItem.productId = item.productId;
                 docItem.quantity = item.quantity!;
-                docItem.price = item.priceNetCents ? item.priceNetCents / 100 : 0;
+                docItem.price = Number(item.netPrice);
                 const savedDocItem = await manager.save(docItem);
 
                 const transaction = new InventoryTransaction();
@@ -226,9 +207,6 @@ export class InvoiceService {
                 transaction.invoiceId = currentInvoiceNumber;
 
                 if (isSale) {
-                    // TICKET 10.2: Walidacja stanu (możemy użyć calculateStock lub polegać na FIFO exception)
-                    // Ale FIFO calculateFIFOCostAndConsume rzuci InsufficientStockException jeśli braknie.
-
                     console.log(`[FIFO] Rozpoczynam konsumpcję dla: ${product.name}`);
                     const fifoResult = await inventoryService.calculateFIFOCostAndConsume(
                         item.productId,
@@ -238,17 +216,15 @@ export class InvoiceService {
                     );
 
                     transaction.type = InventoryTransactionType.WZ;
-                    transaction.costPrice = fifoResult.averagePrice; // Zapisujemy średni koszt zakupu
-                    console.log(`[FIFO] Konsumpcja zakończona. Średnia cena zakupu: ${fifoResult.averagePrice}`);
+                    transaction.costPrice = fifoResult.averagePrice;
                 } else {
                     transaction.type = InventoryTransactionType.PZ;
 
-                    // Rejestracja Partii (PZ)
                     console.log(`[FIFO] Tworzenie partii dla produktu: ${product.name}`);
                     const batch = new InventoryBatch();
                     batch.productId = item.productId;
                     batch.batchNumber = currentInvoiceNumber;
-                    batch.purchasePrice = item.priceNetCents ? item.priceNetCents / 100 : 0;
+                    batch.purchasePrice = Number(item.netPrice);
                     batch.originalQuantity = item.quantity!;
                     batch.remainingQuantity = item.quantity!;
                     await manager.save(InventoryBatch, batch);
@@ -260,19 +236,11 @@ export class InvoiceService {
 
         if (transactions.length > 0) {
             await manager.save(InventoryTransaction, transactions);
-            console.log(`[InvoiceService] Zapisano ${transactions.length} transakcji magazynowych.`);
-        } else {
-            if (invDoc) {
-                console.log(`[InvoiceService] Brak pozycji TOWAR. Usuwanie dokumentu.`);
-                await manager.delete(InventoryDocument, { id: invDoc.id });
-            }
+        } else if (invDoc) {
+            await manager.delete(InventoryDocument, { id: invDoc.id });
         }
     }
 
-    /**
-     * Pomocnicza metoda do generowania numeru dokumentu magazynowego bezpośrednio w transakcji.
-     * Unika circular dependency z InventoryService.
-     */
     private async generateInventoryDocNumber(type: DocumentType, manager: EntityManager): Promise<string> {
         const date = new Date();
         const year = date.getFullYear();
@@ -306,9 +274,6 @@ export class InvoiceService {
         }
     }
 
-    /**
-     * Oblicza aktualny stan magazynowy na podstawie ruchów (PZ - WZ).
-     */
     async calculateStock(productId: string, manager: EntityManager = AppDataSource.manager): Promise<number> {
         const transactions = await manager.find(InventoryTransaction, { where: { productId } });
         return transactions.reduce((acc, t) => {

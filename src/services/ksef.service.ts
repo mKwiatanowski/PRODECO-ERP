@@ -63,7 +63,7 @@ export class KsefService {
             Fa: {
                 KodWaluty: invoice.currency,
                 P_1: new Date(invoice.issueDate).toISOString().split("T")[0],
-                P_2: invoice.invoiceNumber,
+                P_2: invoice.number,
                 P_13_1: this.toDecimal(invoice.totalNetCents),
                 P_14_1: this.toDecimal(invoice.totalVatCents),
                 P_15: this.toDecimal(invoice.totalGrossCents),
@@ -79,7 +79,7 @@ export class KsefService {
                 RodzajFaktury: "VAT",
                 FaWiersze: invoice.items.map((item, index) => ({
                     NrWierszaFa: index + 1,
-                    P_7: item.productId, // Opis towaru/usługi
+                    P_7: item.description, // Opis towaru/usługi
                     P_8A: "szt.",
                     P_8B: item.quantity,
                     P_9A: this.toDecimal(item.priceNetCents),
@@ -89,7 +89,7 @@ export class KsefService {
             }
         };
 
-        console.log(`[KSeF] Generowanie struktury XML dla dokumentu: ${invoice.invoiceNumber}`);
+        console.log(`[KSeF] Generowanie struktury XML dla dokumentu: ${invoice.number}`);
         console.log(JSON.stringify(ksefData, null, 2));
 
         return ksefData;

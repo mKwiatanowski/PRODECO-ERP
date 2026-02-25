@@ -27,6 +27,11 @@ const mockClients: Client[] = [
         postalCode: '01-234',
         city: 'Warszawa',
         type: 'FIRMA',
+        shortName: 'PRODECO',
+        phoneNumber: '+48 123 456 789',
+        paymentTermsDays: 14,
+        creditLimit: 50000,
+        currency: 'PLN',
         createdAt: new Date()
     }
 ];
@@ -41,7 +46,7 @@ const mockInvoices: InvoiceData[] = [
     {
         id: 'inv-1',
         type: 'SALE',
-        invoiceNumber: 'FV/2026/02/001',
+        number: 'FV/2026/02/001',
         issueDate: new Date(2026, 1, 15),
         dueDate: new Date(2026, 2, 1),
         nip: '1234567890',
@@ -161,7 +166,7 @@ export const mockApi: IElectronAPI = {
                         documentNumber: docNum,
                         type: docType,
                         date: new Date(),
-                        referenceId: newInvoice.invoiceNumber,
+                        referenceId: newInvoice.number,
                         items: [{
                             productId: item.productId,
                             quantity: item.quantity,
@@ -211,26 +216,27 @@ export const mockApi: IElectronAPI = {
         },
         printInvoice: async (id: string) => {
             const invoice = mockInvoices.find(inv => inv.id === id);
-            const formattedAmount = invoice
-                ? new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(invoice.totalGrossCents / 100)
-                : '0,00 zł';
-            console.log(`[Mock API] Generowanie PDF dla faktury: ${id}. Kwota: ${formattedAmount}`);
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            alert(`[Symulacja] Dokument Faktura_${invoice?.invoiceNumber || id}.pdf został przygotowany.`);
+            console.log(`[Mock API] Generowanie PDF dla faktury: ${id}`);
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return { success: true, path: `/mock/Faktura_${(invoice?.number || id).replace(/\//g, '_')}.pdf` };
         },
         sendToKsef: async (id: string) => {
             const invoice = mockInvoices.find(inv => inv.id === id);
             if (!invoice) return;
 
-            console.log(`[Mock API] Wysyłanie faktury ${invoice.invoiceNumber} do KSeF...`);
+            console.log(`[Mock API] Wysyłanie faktury ${invoice.number} do KSeF...`);
             invoice.ksefStatus = KsefStatus.OCZEKUJE;
 
             setTimeout(() => {
                 invoice.ksefStatus = KsefStatus.PRZYJĘTO;
                 invoice.ksefReferenceNumber = `KSEF-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
-                console.log(`[Mock API] Faktura ${invoice.invoiceNumber} zaakceptowana przez KSeF. Ref: ${invoice.ksefReferenceNumber}`);
-                alert(`Faktura ${invoice.invoiceNumber} została poprawnie zarejestrowana w KSeF.`);
+                console.log(`[Mock API] Faktura ${invoice.number} zaakceptowana przez KSeF. Ref: ${invoice.ksefReferenceNumber}`);
+                alert(`Faktura ${invoice.number} została poprawnie zarejestrowana w KSeF.`);
             }, 2000);
+        },
+        generatePdf: async (id: string) => {
+            console.log(`[Mock API] Generowanie PDF dla faktury: ${id}`);
+            return { success: true, path: `/mock/path/invoice_${id}.pdf` };
         }
     },
     projects: {
@@ -267,6 +273,14 @@ export const mockApi: IElectronAPI = {
                 postalCode: data.postalCode || '',
                 city: data.city || '',
                 type: data.type || 'FIRMA',
+                shortName: data.shortName || '',
+                phoneNumber: data.phoneNumber || '',
+                shippingAddress: data.shippingAddress || '',
+                paymentTermsDays: data.paymentTermsDays || 0,
+                creditLimit: data.creditLimit || 0,
+                bankAccountNumber: data.bankAccountNumber || '',
+                defaultDiscount: data.defaultDiscount || 0,
+                currency: data.currency || 'PLN',
                 createdAt: new Date()
             };
             mockClients.push(newClient);
@@ -336,6 +350,16 @@ export const mockApi: IElectronAPI = {
             console.log('[Mock API] Usuwanie elementu słownika:', id);
         }
     },
+    settings: {
+        getProfile: async () => ({ name: 'Firma Mock', nip: '1234567890' }),
+        updateProfile: async (data: any) => data,
+        getNumberingSchemes: async (_target?: string) => [
+            { id: '1', target: 'CLIENT', prefix: 'KLI', mask: '[PREFIX]/[YYYY]/[NR:4]', isDefault: true },
+            { id: '2', target: 'INVOICE', prefix: 'FV', mask: '[PREFIX]/[YYYY]/[MM]/[NR]', isDefault: true }
+        ],
+        updateNumberingScheme: async (data: any) => data,
+        testNumbering: async (target: string) => `${target}/2026/001`,
+    },
 
     // Window Controls
     minimize: () => console.log('[Mock API] Minimalizacja'),
@@ -361,6 +385,7 @@ export const mockApi: IElectronAPI = {
     deleteDictionary: async (id) => mockApi.dictionaries.delete(id),
     printInvoice: async (id: string) => mockApi.finance.printInvoice(id),
     sendToKsef: async (id: string) => mockApi.finance.sendToKsef(id),
+    generatePdf: async (id: string) => mockApi.finance.generatePdf(id),
     getProductHistory: async (productId: string) => mockApi.inventory.getProductHistory(productId),
     getInventoryDocumentDetails: async (documentId: string) => mockApi.inventory.getInventoryDocumentDetails(documentId),
 };

@@ -12,6 +12,7 @@ export const FinanceDashboard: React.FC = () => {
     const [generatingPdfId, setGeneratingPdfId] = useState<string | null>(null);
     const [editingInvoice, setEditingInvoice] = useState<InvoiceData | null>(null);
     const [documentType, setDocumentType] = useState<'ALL' | 'SALE' | 'PURCHASE'>('ALL');
+    const [hasError, setHasError] = useState(false);
 
     // Default to current year and month
     const now = new Date();
@@ -29,6 +30,7 @@ export const FinanceDashboard: React.FC = () => {
             setInvoices(invData);
         } catch (error) {
             console.error("Failed to load finance data", error);
+            setHasError(true);
         } finally {
             setIsLoading(false);
         }
@@ -65,10 +67,13 @@ export const FinanceDashboard: React.FC = () => {
     const handlePrint = async (id: string) => {
         setGeneratingPdfId(id);
         try {
-            await window.electron.finance.printInvoice(id);
+            const result = await window.electron.finance.generatePdf(id);
+            if (!result.success && result.reason !== 'CANCELED') {
+                alert("Błąd podczas generowania pliku PDF: " + result.reason);
+            }
         } catch (error) {
             console.error("Failed to generate PDF", error);
-            alert("Błąd podczas generowania pliku PDF. Upewnij się, że usługa generowania dokumentów jest włączona.");
+            alert("Błąd krytyczny podczas generowania pliku PDF.");
         } finally {
             setGeneratingPdfId(null);
         }
@@ -89,39 +94,64 @@ export const FinanceDashboard: React.FC = () => {
     };
 
     const filteredInvoices = useMemo(() => {
-        return invoices.filter(inv => {
-            const matchesSearch = inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesType = documentType === 'ALL' || inv.type === documentType;
+        try {
+            return invoices.filter(inv => {
+                const matchesSearch = (inv.number || "").toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesType = documentType === 'ALL' || inv.type === documentType;
 
-            const date = new Date(inv.issueDate);
-            const matchesYear = date.getFullYear() === selectedYear;
-            const matchesMonth = (date.getMonth() + 1) === selectedMonth;
+                const date = inv.issueDate ? new Date(inv.issueDate) : new Date(0);
+                const isValidDate = !isNaN(date.getTime());
+                const matchesYear = isValidDate && date.getFullYear() === selectedYear;
+                const matchesMonth = isValidDate && (date.getMonth() + 1) === selectedMonth;
 
-            return matchesSearch && matchesType && matchesYear && matchesMonth;
-        });
+                return matchesSearch && matchesType && matchesYear && matchesMonth;
+            });
+        } catch (e) {
+            console.error("Error filtering invoices", e);
+            return [];
+        }
     }, [invoices, searchTerm, documentType, selectedYear, selectedMonth]);
 
     const dynamicSummary = useMemo(() => {
-        const periodInvoices = invoices.filter(inv => {
-            const date = new Date(inv.issueDate);
-            return date.getFullYear() === selectedYear && (date.getMonth() + 1) === selectedMonth;
-        });
+        try {
+            const periodInvoices = invoices.filter(inv => {
+                const date = inv.issueDate ? new Date(inv.issueDate) : new Date(0);
+                return !isNaN(date.getTime()) && date.getFullYear() === selectedYear && (date.getMonth() + 1) === selectedMonth;
+            });
 
-        const incomes = periodInvoices
-            .filter(inv => inv.type === 'SALE')
-            .reduce((sum, inv) => sum + inv.totalGrossCents, 0);
+            const incomes = periodInvoices
+                .filter(inv => inv.type === 'SALE')
+                .reduce((sum, inv) => sum + (Number(inv.totalGrossCents) || 0), 0);
 
-        const expenses = periodInvoices
-            .filter(inv => inv.type === 'PURCHASE')
-            .reduce((sum, inv) => sum + inv.totalGrossCents, 0);
+            const expenses = periodInvoices
+                .filter(inv => inv.type === 'PURCHASE')
+                .reduce((sum, inv) => sum + (Number(inv.totalGrossCents) || 0), 0);
 
-        return {
-            totalIncomesCents: incomes,
-            totalExpensesCents: expenses,
-            balanceCents: incomes - expenses
-        };
+            return {
+                totalIncomesCents: incomes,
+                totalExpensesCents: expenses,
+                balanceCents: incomes - expenses
+            };
+        } catch (e) {
+            console.error("Error calculating summary", e);
+            return { totalIncomesCents: 0, totalExpensesCents: 0, balanceCents: 0 };
+        }
     }, [invoices, selectedYear, selectedMonth]);
 
+
+    if (hasError) {
+        return (
+            <div className="p-8 bg-slate-950 min-h-screen text-slate-200 flex flex-col items-center justify-center">
+                <h2 className="text-2xl font-bold text-rose-500 mb-4">Wystąpił błąd podczas ładowania modułu finansowego.</h2>
+                <button
+                    onClick={() => { setHasError(false); loadData(); }}
+                    className="bg-indigo-600 px-6 py-2 rounded-xl text-white font-bold"
+                >
+                    Spróbuj ponownie
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="p-8 bg-slate-950 min-h-screen text-slate-200 font-sans">
@@ -262,12 +292,13 @@ export const FinanceDashboard: React.FC = () => {
                         <thead className="sticky top-0 bg-slate-900/90 backdrop-blur-xl z-10 border-b border-slate-800">
                             <tr>
                                 <ResizableTh tableId="finance_dash" columnId="type" initialWidth={100} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest">Typ</ResizableTh>
-                                <ResizableTh tableId="finance_dash" columnId="number" initialWidth={200} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest">Numer Faktury</ResizableTh>
-                                <ResizableTh tableId="finance_dash" columnId="date" initialWidth={150} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest">Data</ResizableTh>
-                                <ResizableTh tableId="finance_dash" columnId="amount" initialWidth={180} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest text-right">Kwota</ResizableTh>
-                                <ResizableTh tableId="finance_dash" columnId="status" initialWidth={150} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest text-center">Status</ResizableTh>
-                                <ResizableTh tableId="finance_dash" columnId="ksef" initialWidth={150} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest text-center">Status KSeF</ResizableTh>
-                                <ResizableTh tableId="finance_dash" columnId="actions" initialWidth={150} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest text-center">Akcje</ResizableTh>
+                                <ResizableTh tableId="finance_dash" columnId="number" initialWidth={150} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest">Numer</ResizableTh>
+                                <ResizableTh tableId="finance_dash" columnId="date" initialWidth={120} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest">Data</ResizableTh>
+                                <ResizableTh tableId="finance_dash" columnId="client" initialWidth={180} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest">Nabywca/Sprzedawca</ResizableTh>
+                                <ResizableTh tableId="finance_dash" columnId="amount" initialWidth={150} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest text-right">Kwota</ResizableTh>
+                                <ResizableTh tableId="finance_dash" columnId="status" initialWidth={120} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest text-center">Status</ResizableTh>
+                                <ResizableTh tableId="finance_dash" columnId="ksef" initialWidth={120} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest text-center">KSeF</ResizableTh>
+                                <ResizableTh tableId="finance_dash" columnId="actions" initialWidth={110} className="px-6 py-4 text-slate-500 uppercase text-[10px] font-black tracking-widest text-center">Akcje</ResizableTh>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-800/40">
@@ -297,13 +328,16 @@ export const FinanceDashboard: React.FC = () => {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 font-bold text-slate-100 group-hover:text-indigo-400 transition-colors">
-                                            {inv.invoiceNumber}
+                                            {inv.number}
                                         </td>
                                         <td className="px-6 py-4 text-slate-400 font-medium whitespace-nowrap">
-                                            {new Date(inv.issueDate).toLocaleDateString('pl-PL')}
+                                            {inv.issueDate ? new Date(inv.issueDate).toLocaleDateString('pl-PL') : 'Brak daty'}
+                                        </td>
+                                        <td className="px-6 py-4 text-slate-400 font-medium truncate">
+                                            {inv.client?.name || 'Brak klienta'}
                                         </td>
                                         <td className={`px-6 py-4 text-right font-black ${inv.type === 'SALE' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                            {formatCurrency(inv.totalGrossCents)}
+                                            {formatCurrency(Number(inv.totalGrossCents) || 0)}
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <div className="flex justify-center">

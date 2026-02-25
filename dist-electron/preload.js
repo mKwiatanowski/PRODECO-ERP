@@ -19,7 +19,8 @@ const electronAPI = {
     updateInvoice: (id, invoice, items) => electron.ipcRenderer.invoke("finance:updateInvoice", id, invoice, items),
     getFinancialSummary: () => electron.ipcRenderer.invoke("finance:getFinancialSummary"),
     printInvoice: (invoiceId) => electron.ipcRenderer.invoke("finance:printInvoice", invoiceId),
-    sendToKsef: (invoiceId) => electron.ipcRenderer.invoke("finance:sendToKsef", invoiceId)
+    sendToKsef: (invoiceId) => electron.ipcRenderer.invoke("finance:sendToKsef", invoiceId),
+    generatePdf: (invoiceId) => electron.ipcRenderer.invoke("finance:generatePdf", invoiceId)
   },
   // Projects
   projects: {
@@ -31,7 +32,8 @@ const electronAPI = {
   clients: {
     create: (data) => electron.ipcRenderer.invoke("clients:create", data),
     update: (data) => electron.ipcRenderer.invoke("clients:update", data),
-    getAll: () => electron.ipcRenderer.invoke("clients:getAll")
+    getAll: () => electron.ipcRenderer.invoke("clients:getAll"),
+    fetchGusData: (nip) => electron.ipcRenderer.invoke("clients:fetchGusData", nip)
   },
   // System / Dictionaries
   dictionaries: {
@@ -39,6 +41,14 @@ const electronAPI = {
     add: (data) => electron.ipcRenderer.invoke("dictionaries:add", data),
     update: (data) => electron.ipcRenderer.invoke("dictionaries:update", data),
     delete: (id) => electron.ipcRenderer.invoke("dictionaries:delete", id)
+  },
+  // Settings
+  settings: {
+    getProfile: () => electron.ipcRenderer.invoke("settings:getProfile"),
+    updateProfile: (data) => electron.ipcRenderer.invoke("settings:updateProfile", data),
+    getNumberingSchemes: (target) => electron.ipcRenderer.invoke("settings:getNumberingSchemes", target),
+    updateNumberingScheme: (data) => electron.ipcRenderer.invoke("settings:updateNumberingScheme", data),
+    testNumbering: (target) => electron.ipcRenderer.invoke("settings:testNumbering", target)
   },
   // Legacy / Flat support (matching previous structure)
   getInventory: () => electron.ipcRenderer.invoke("inventory:getAll"),

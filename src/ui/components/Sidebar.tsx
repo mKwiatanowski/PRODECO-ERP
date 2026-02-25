@@ -8,7 +8,8 @@ export const Sidebar: React.FC = () => {
         { path: '/inventory', label: 'Magazyn', icon: Warehouse },
         { path: '/finance', label: 'Finanse', icon: CircleDollarSign },
         { path: '/projects', label: 'Projekty', icon: FolderKanban },
-        { path: '/clients', label: 'Klienci', icon: Users }, // New CRM Module
+        { path: '/clients', label: 'Klienci', icon: Users },
+        { path: '/settings', label: 'Ustawienia', icon: Settings },
     ];
 
     return (
@@ -69,7 +70,7 @@ export const Sidebar: React.FC = () => {
                     }
                 >
                     <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-                    <span className="text-sm">Ustawienia & Słowniki</span>
+                    <span className="text-sm">Słowniki Systemowe</span>
                 </NavLink>
                 <div className="mt-4 px-2 flex justify-between items-center text-[10px] text-slate-600 font-mono">
                     <span>v0.1.0-alpha</span>
